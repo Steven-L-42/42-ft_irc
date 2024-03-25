@@ -6,7 +6,7 @@
 /*   By: slippert <slippert@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 18:04:42 by slippert          #+#    #+#             */
-/*   Updated: 2024/03/24 14:32:43 by slippert         ###   ########.fr       */
+/*   Updated: 2024/03/25 10:42:40 by slippert         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,8 @@ private:
 	void srvInit();
 	void srvLstn();
 	void srvRecv();
-	void srvSend();
+	void srvCheck();
+	void srvSend(int _clientSocket, const std::string &message);
 	void srvRemv();
 	void checkCommand(int _clientSocket);
 	bool checkCAP(int _clientSocket, const std::string &msg);

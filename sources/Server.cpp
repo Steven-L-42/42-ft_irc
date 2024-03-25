@@ -6,7 +6,7 @@
 /*   By: slippert <slippert@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 18:04:38 by slippert          #+#    #+#             */
-/*   Updated: 2024/03/24 15:57:59 by slippert         ###   ########.fr       */
+/*   Updated: 2024/03/25 11:48:06 by slippert         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,8 @@ Server::~Server()
 void Server::SignalHandler(int signum)
 {
 	(void)signum;
-	std::cout << "killed Signal" << std::endl;
 	Server::Signal = true;
+	std::cout << red << "killed Signal" << res << std::endl;
 }
 
 void Server::start()
@@ -72,18 +72,15 @@ void Server::srvInit()
 		throw(std::runtime_error("Error: listen"));
 }
 
-std::string _serverName = "MyIRCServer";
-
 void Server::srvLstn()
 {
-	std::cout << blue << "~ Server is running | Port: " << _port << " ~ " << res << std::endl;
+	std::cout << blue << "~ Server is running | Port: " << _port << " | Password: " << _password << " ~ " << res << std::endl;
 	std::cout << std::endl;
 	fd_set read_set;
 	struct timeval timeout;
 	timeout.tv_sec = 0;
 	timeout.tv_usec = 0;
 
-	std::cout << "Server Socket: " << _socket << std::endl;
 	while (Server::Signal == false)
 	{
 		// Reset read_set, re-set it to _socket and re-fill read_set with known _sockets
@@ -123,7 +120,7 @@ void Server::srvLstn()
 				}
 			}
 			srvRecv();
-			srvSend();
+			srvCheck();
 			srvRemv();
 		}
 	}
@@ -138,7 +135,8 @@ void Server::srvRemv()
 		if (!it->second.Connected || Server::Signal == true)
 		{
 			close(it->first);
-			clients.erase(it); // Direktes Löschen ohne Zuweisung an 'it'
+			// return value <iterator> of erase() not used for linux compatibility
+			clients.erase(it);
 			it = clients.begin();
 		}
 		else
@@ -161,12 +159,12 @@ void Server::srvRecv()
 
 		buffer[bytes_received] = '\0';
 		it->second.recvMsg = std::string(buffer);
-		std::cout << "srvRecv: " << it->second.recvMsg;
+		std::cout << magenta << "srvRecv: " << it->second.recvMsg << res;
 	}
 }
 
 // send messages
-void Server::srvSend()
+void Server::srvCheck()
 {
 	std::map<int, Client>::iterator it;
 	for (it = clients.begin(); it != clients.end(); it++)
@@ -175,6 +173,14 @@ void Server::srvSend()
 			continue;
 		checkCommand(it->first);
 	}
+}
+
+// send messages
+void Server::srvSend(int _clientSocket, const std::string &message)
+{
+	if (!send(_clientSocket, message.c_str(), message.size(), 0))
+		std::cout << "Client: " << _clientSocket << " : ERROR" << std::endl;
+	std::cout << green << "srvSend: " << message << res;
 }
 
 // check if incoming message is a command
@@ -204,7 +210,7 @@ void Server::checkCommand(int _clientSocket)
 		return;
 	if (checkQUIT(_clientSocket, msg))
 		return;
-	// if a unknown Command is entered
+	// if a unknown command is entered
 	if (unknownCMD(_clientSocket, msg))
 		return;
 }
@@ -228,9 +234,7 @@ bool Server::checkCAP(int _clientSocket, const std::string &msg)
 		if (substrCMD == "LS")
 		{
 			replyMsg = "CAP * LS :multi-prefix sasl\r\n";
-			if (!send(_clientSocket, replyMsg.c_str(), replyMsg.size(), 0))
-				std::cout << _clientSocket << ": ERROR" << std::endl;
-			// std::cout << substrCMD << std::endl;
+			srvSend(_clientSocket, replyMsg);
 			return (cap == substrCAP);
 		}
 		substrCMD = msg.substr(capSize, 3);
@@ -238,11 +242,8 @@ bool Server::checkCAP(int _clientSocket, const std::string &msg)
 		{
 			// substract all after "CAP REQ :"
 			substrCMD = msg.substr(capSize + substrCMD.size() + 2, msg.size() - (capSize + substrCMD.size() + 4));
-			// std::cout << substrCMD << std::endl;
 			replyMsg = "CAP * ACK :" + substrCMD + CRLF;
-			// std::cout << replyMsg;
-			if (!send(_clientSocket, replyMsg.c_str(), replyMsg.size(), 0))
-				std::cout << _clientSocket << ": ERROR" << std::endl;
+			srvSend(_clientSocket, replyMsg);
 			return (cap == substrCAP);
 		}
 		substrCMD = msg.substr(capSize, 3);
@@ -250,18 +251,23 @@ bool Server::checkCAP(int _clientSocket, const std::string &msg)
 		{
 			std::string incomingMsg;
 			// wait for receiving NICK <username and USER <username> <usermode> <hostname> <clientcomment>
+			size_t breakit = 0;
 			while (Server::Signal == false)
 			{
 				char buffer[1024];
 				ssize_t bytes_received = recv(_clientSocket, buffer, sizeof(buffer), 0);
 				if (bytes_received < 1)
+				{
+					if (++breakit >= 99999999)
+						break;
 					continue;
+				}
 
 				buffer[bytes_received] = '\0';
 				incomingMsg = std::string(buffer);
 				break;
 			}
-			// std::cout << incomingMsg;
+			std::cout << magenta << "srvRecv: " << incomingMsg << res;
 
 			// create tokens, split string on each space ' '.
 			std::vector<std::string> strTokens = Helper::splitString(incomingMsg);
@@ -283,13 +289,11 @@ bool Server::checkCAP(int _clientSocket, const std::string &msg)
 			if (!foundPASS)
 			{
 				replyMsg = ERR_PASSWDMISMATCH(clients[_clientSocket].Nickname);
-				if (!send(_clientSocket, replyMsg.c_str(), replyMsg.size(), 0))
-					std::cout << _clientSocket << ": ERROR" << std::endl;
+				srvSend(_clientSocket, replyMsg);
 				clients[_clientSocket].Connected = false;
 				return (cap == substrCAP);
 			}
 
-			// std::cout << "TEST" << msg << std::endl;
 			// set <nickname> and send reply to client
 			if (itToken != strTokens.end() && *itToken == "NICK")
 			{
@@ -320,17 +324,12 @@ bool Server::checkCAP(int _clientSocket, const std::string &msg)
 				}
 			}
 
-			// send Welcome Message and login
+			// send welcome message and login
 			replyMsg = RPL_WELCOME(clients[_clientSocket].Nickname);
-			if (!send(_clientSocket, replyMsg.c_str(), replyMsg.size(), 0))
-				std::cout << _clientSocket << ": ERROR" << std::endl;
-			// std::cout << replyMsg;
-
-			// send Message of the Day
+			srvSend(_clientSocket, replyMsg);
+			// send message of the day
 			replyMsg = RPL_MOTD();
-			if (!send(_clientSocket, replyMsg.c_str(), replyMsg.size(), 0))
-				std::cout << _clientSocket << ": ERROR" << std::endl;
-			// std::cout << replyMsg;
+			srvSend(_clientSocket, replyMsg);
 			return (cap == substrCAP);
 		}
 	}
@@ -350,21 +349,18 @@ bool Server::checkJOIN(int _clientSocket, const std::string &msg)
 	if (join == substrCMD)
 	{
 		clients[_clientSocket].recvMsg = "";
-		std::string substrCHANNEL = msg.substr(joinSize, msg.size() - joinSize);
+		std::string substrCHANNEL = msg.substr(joinSize, msg.size() - joinSize - 2);
 		// set REPLY MSG and send it back to clientSocket
 		std::string replyMsg = RPL_JOINMSG(clients[_clientSocket].Nickname, clients[_clientSocket].Hostname, substrCHANNEL);
-		// delete received Message
+		// add channel to user
+		if (std::find(clients[_clientSocket].channel.begin(), clients[_clientSocket].channel.end(), substrCHANNEL) == clients[_clientSocket].channel.end())
+			clients[_clientSocket].channel.push_back(substrCHANNEL);
 		std::map<int, Client>::iterator it;
 		for (it = clients.begin(); it != clients.end(); it++)
 		{
-			// if (it->first == _clientSocket)
-			// 	continue;
-			if (!send(it->first, replyMsg.c_str(), replyMsg.size(), 0))
-				std::cout << it->first << ": ERROR" << std::endl;
+			if (std::find(it->second.channel.begin(), it->second.channel.end(), substrCHANNEL) != it->second.channel.end())
+				srvSend(it->first, replyMsg);
 		}
-		substrCHANNEL = substrCHANNEL.substr(0, substrCHANNEL.size() - 2);
-		if (std::find(clients[_clientSocket].channel.begin(), clients[_clientSocket].channel.end(), substrCHANNEL) == clients[_clientSocket].channel.end())
-			clients[_clientSocket].channel.push_back(substrCHANNEL);
 	}
 	return (join == substrCMD);
 }
@@ -381,19 +377,17 @@ bool Server::checkPART(int _clientSocket, const std::string &msg)
 
 	if (part == substrCMD)
 	{
-		std::string substrCHANNEL = msg.substr(partSize, msg.size() - partSize);
+		clients[_clientSocket].recvMsg = "";
+		std::string substrCHANNEL = msg.substr(partSize, msg.size() - partSize - 2);
 		// set REPLY MSG and send it back to clientSocket
 		std::string replyMsg = RPL_PART(clients[_clientSocket].Nickname, clients[_clientSocket].Username, clients[_clientSocket].Hostname, substrCHANNEL);
-
-		// delete received Message
-		clients[_clientSocket].recvMsg = "";
 		std::map<int, Client>::iterator it;
 		for (it = clients.begin(); it != clients.end(); it++)
 		{
-			if (!send(it->first, replyMsg.c_str(), replyMsg.size(), 0))
-				std::cout << it->first << ": ERROR" << std::endl;
+			if (std::find(it->second.channel.begin(), it->second.channel.end(), substrCHANNEL) != it->second.channel.end())
+				srvSend(it->first, replyMsg);
 		}
-		substrCHANNEL = substrCHANNEL.substr(0, substrCHANNEL.size() - 2);
+		// remove channel from user
 		if (std::find(clients[_clientSocket].channel.begin(), clients[_clientSocket].channel.end(), substrCHANNEL) != clients[_clientSocket].channel.end())
 			clients[_clientSocket].channel.erase(std::find(clients[_clientSocket].channel.begin(), clients[_clientSocket].channel.end(), substrCHANNEL));
 	}
@@ -434,8 +428,7 @@ bool Server::checkPRIVMSG(int _clientSocket, const std::string &msg)
 		{
 			if (it->first == _clientSocket && clients[_clientSocket].Nickname != substrChannelOrName)
 				continue;
-			if (!send(it->first, replyMsg.c_str(), replyMsg.size(), 0))
-				std::cout << it->first << ": ERROR" << std::endl;
+			srvSend(it->first, replyMsg);
 		}
 	}
 	return (privmsg == substrCMD);
@@ -460,12 +453,7 @@ bool Server::checkNICK(int _clientSocket, const std::string &msg)
 		std::string replyMsg = RPL_NICKCHANGE(clients[_clientSocket].Nickname, substrNICKNAME);
 		std::map<int, Client>::iterator it;
 		for (it = clients.begin(); it != clients.end(); it++)
-		{
-			// if (it->first == _clientSocket)
-			// 	continue;
-			if (!send(it->first, replyMsg.c_str(), replyMsg.size(), 0))
-				std::cout << it->first << ": ERROR" << std::endl;
-		}
+			srvSend(it->first, replyMsg);
 		// overwrite old nickname
 		clients[_clientSocket].Nickname = substrNICKNAME;
 	}
@@ -485,7 +473,6 @@ bool Server::checkWHOIS(int _clientSocket, const std::string &msg)
 	{
 		clients[_clientSocket].recvMsg = "";
 		std::string substrNAME = msg.substr(whoisSize, msg.size() - whoisSize - 2);
-		// std::cout << substrNAME << "$" << std::endl;
 		std::map<int, Client>::iterator it;
 		for (it = clients.begin(); it != clients.end(); it++)
 		{
@@ -496,9 +483,7 @@ bool Server::checkWHOIS(int _clientSocket, const std::string &msg)
 			return (whomsg == substrCMD);
 
 		std::string replyMsg = RPL_WHOIS(clients[_clientSocket].Nickname, substrNAME, it->second.Username, it->second.Hostname, it->second.Realname);
-		if (!send(_clientSocket, replyMsg.c_str(), replyMsg.size(), 0))
-			std::cout << _clientSocket << ": ERROR" << std::endl;
-		// std::cout << replyMsg << std::endl;
+		srvSend(_clientSocket, replyMsg);
 	}
 	return (whomsg == substrCMD);
 }
@@ -523,9 +508,7 @@ bool Server::checkWHO(int _clientSocket, const std::string &msg)
 
 		// send Channel Topic
 		replyMsg = RPL_CHTOPIC(clients[_clientSocket].Nickname, substrCHANNEL, "Mein Topic");
-		if (!send(_clientSocket, replyMsg.c_str(), replyMsg.size(), 0))
-			std::cout << _clientSocket << ": ERROR" << std::endl;
-
+		srvSend(_clientSocket, replyMsg);
 		// create userlist based on stored information of clients
 		std::string userList = "";
 		std::map<int, Client>::iterator it;
@@ -544,13 +527,10 @@ bool Server::checkWHO(int _clientSocket, const std::string &msg)
 
 		// send all channel user nicknames to client
 		replyMsg = RPL_USERLIST(clients[_clientSocket].Nickname, substrCHANNEL, userList);
-		if (!send(_clientSocket, replyMsg.c_str(), replyMsg.size(), 0))
-			std::cout << _clientSocket << ": ERROR" << std::endl;
-
+		srvSend(_clientSocket, replyMsg);
 		// send a end of userlist for client to know that this list is ending
 		replyMsg = RPL_ENDOFUSERLIST(clients[_clientSocket].Nickname, substrCHANNEL);
-		if (!send(_clientSocket, replyMsg.c_str(), replyMsg.size(), 0))
-			std::cout << _clientSocket << ": ERROR" << std::endl;
+		srvSend(_clientSocket, replyMsg);
 	}
 	return (whomsg == substrCMD);
 }
@@ -574,8 +554,7 @@ bool Server::checkMODE(int _clientSocket, const std::string &msg)
 
 		// send Channel modes
 		replyMsg = RPL_CHANNELMODEIS(clients[_clientSocket].Nickname, substrCHANNEL, "m");
-		if (!send(_clientSocket, replyMsg.c_str(), replyMsg.size(), 0))
-			std::cout << _clientSocket << ": ERROR" << std::endl;
+		srvSend(_clientSocket, replyMsg);
 	}
 	return (mode == substrCMD);
 }
@@ -594,8 +573,7 @@ bool Server::checkPING(int _clientSocket, const std::string &msg)
 	{
 		clients[_clientSocket].recvMsg = "";
 		std::string replyMsg = RPL_PONG(clients[_clientSocket].Nickname, clients[_clientSocket].Hostname);
-		if (!send(_clientSocket, replyMsg.c_str(), replyMsg.size(), 0))
-			std::cout << _clientSocket << ": ERROR" << std::endl;
+		srvSend(_clientSocket, replyMsg);
 	}
 	return (ping == substrCMD);
 }
@@ -620,10 +598,7 @@ bool Server::checkQUIT(int _clientSocket, const std::string &msg)
 		clients[_clientSocket].Connected = false;
 		std::map<int, Client>::iterator it;
 		for (it = clients.begin(); it != clients.end(); it++)
-		{
-			if (!send(it->first, replyMsg.c_str(), replyMsg.size(), 0))
-				std::cout << it->first << ": ERROR" << std::endl;
-		}
+			srvSend(it->first, replyMsg);
 	}
 	return (quit == substrCMD);
 }
@@ -633,7 +608,6 @@ bool Server::unknownCMD(int _clientSocket, const std::string &msg)
 {
 	clients[_clientSocket].recvMsg = "";
 	std::string replyMsg = ERR_UNKNOWNCOMMAND(clients[_clientSocket].Nickname, msg);
-	if (!send(_clientSocket, replyMsg.c_str(), replyMsg.size(), 0))
-		std::cout << _clientSocket << ": ERROR" << std::endl;
+	srvSend(_clientSocket, replyMsg);
 	return (true);
 }
