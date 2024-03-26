@@ -6,7 +6,7 @@
 /*   By: slippert <slippert@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/23 18:04:38 by slippert          #+#    #+#             */
-/*   Updated: 2024/03/25 11:48:06 by slippert         ###   ########.fr       */
+/*   Updated: 2024/03/26 13:34:54 by slippert         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ void Server::SignalHandler(int signum)
 {
 	(void)signum;
 	Server::Signal = true;
+	std::cout << signum << std::endl;
 	std::cout << red << "killed Signal" << res << std::endl;
 }
 
@@ -361,6 +362,8 @@ bool Server::checkJOIN(int _clientSocket, const std::string &msg)
 			if (std::find(it->second.channel.begin(), it->second.channel.end(), substrCHANNEL) != it->second.channel.end())
 				srvSend(it->first, replyMsg);
 		}
+		replyMsg = RPL_UMODEIS(clients[_clientSocket].Hostname, substrCHANNEL, "+o", clients[_clientSocket].Nickname);
+		srvSend(_clientSocket, replyMsg);
 	}
 	return (join == substrCMD);
 }
@@ -422,7 +425,7 @@ bool Server::checkPRIVMSG(int _clientSocket, const std::string &msg)
 		max = msg.size() - start - 2;
 		std::string substrMessage = msg.substr(start, max);
 		// set REPLY MSG and send it back to clientSocket
-		std::string replyMsg = RPL_MESSAGE(clients[_clientSocket].Nickname, clients[_clientSocket].Hostname, substrChannelOrName, substrMessage);
+		std::string replyMsg = RPL_MESSAGE(clients[_clientSocket].Nickname, clients[_clientSocket].Username, clients[_clientSocket].Hostname, substrChannelOrName, substrMessage);
 		std::map<int, Client>::iterator it;
 		for (it = clients.begin(); it != clients.end(); it++)
 		{
@@ -552,9 +555,9 @@ bool Server::checkMODE(int _clientSocket, const std::string &msg)
 		std::string substrCHANNEL = msg.substr(modeSize, msg.size() - modeSize - 2);
 		std::string replyMsg;
 
-		// send Channel modes
-		replyMsg = RPL_CHANNELMODEIS(clients[_clientSocket].Nickname, substrCHANNEL, "m");
-		srvSend(_clientSocket, replyMsg);
+		// // send Channel modes
+		// replyMsg = RPL_CHANNELMODEIS(clients[_clientSocket].Nickname, substrCHANNEL, " ");
+		// srvSend(_clientSocket, replyMsg);
 	}
 	return (mode == substrCMD);
 }

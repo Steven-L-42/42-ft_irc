@@ -6,7 +6,7 @@
 /*   By: slippert <slippert@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/08 11:22:15 by slippert          #+#    #+#             */
-/*   Updated: 2024/03/25 11:46:05 by slippert         ###   ########.fr       */
+/*   Updated: 2024/03/26 13:34:30 by slippert         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@
 
 //// REPLY CODES
 
+// 381	RPL_YOUREOPER	 	:You are now an IRC operator	– RPL_YOUREOPER is sent back to a client which has just successfully issued an OPER message and gained operator status.
+
 // send Welcome after answering to CAP LS and setup whole user with received information
 #define RPL_WELCOME(nickname) (std::string(": 001 ") + nickname + " :Welcome to the IRC server of 42 Heilbronn 🖥 Team: .:GUNSANSLIP:. 👋😎🍉🏝" + CRLF)
 
@@ -55,7 +57,7 @@
 #define RPL_JOINMSG(nickname, ipaddress, channelname) (std::string(":") + nickname + "!" + nickname + "@" + ipaddress + " JOIN #" + channelname + CRLF)
 
 // send Message to all other users there on same channel or a single privat user
-#define RPL_MESSAGE(nickname, hostname, recipient, message) (std::string(":") + nickname + "!" + nickname + "@" + hostname + " PRIVMSG " + recipient + " :" + message + CRLF)
+#define RPL_MESSAGE(nickname, username, hostname, recipient, message) (std::string(":") + nickname + "!" + username + "@" + hostname + " PRIVMSG " + recipient + " :" + message + CRLF)
 
 // send nickname change approvel after user changed it with command /nick <username>
 #define RPL_NICKCHANGE(oldnickname, nickname) (std::string(":") + oldnickname + " NICK " + nickname + CRLF)
@@ -85,7 +87,7 @@
 // send Channelmodes as answer to "MODE #channelname"
 #define RPL_CHANNELMODEIS(nickname, channelname, modes) (": 324 " + nickname + " #" + channelname + " " + modes + CRLF)
 
-#define RPL_UMODEIS(hostname, channelname, mode, user) ":" + hostname + " MODE " + channelname + " " + mode + " " + user + CRLF
+#define RPL_UMODEIS(hostname, channelname, mode, user) ":" + hostname + " MODE #" + channelname + " " + mode + " " + user + CRLF
 #define RPL_CHANGEMODE(hostname, channelname, mode, arguments) (":" + hostname + " MODE #" + channelname + " " + mode + " " + arguments + CRLF)
 
 
