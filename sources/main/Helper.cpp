@@ -6,11 +6,11 @@
 /*   By: slippert <slippert@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/08 11:07:03 by slippert          #+#    #+#             */
-/*   Updated: 2024/03/23 13:01:01 by slippert         ###   ########.fr       */
+/*   Updated: 2024/03/28 13:06:57 by slippert         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Helper.hpp"
+#include "../../includes/Helper.hpp"
 
 std::string Helper::getCurTime()
 {

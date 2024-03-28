@@ -2,14 +2,19 @@ NAME			:= ircserv
 
 CXX				:= c++
 
-CXXFLAGS		:= -Wall -Wextra -Werror -std=c++98
+CXXFLAGS		:=
+#-Wall -Wextra -Werror -std=c++98
 
-SRCS			:= main.cpp Server.cpp Helper.cpp
-# Commands.cpp
+SRCS_F			:= sources
 
-SRCS_F			:= sources/
+SRCS_CMDS		:= Commands cap join kick mode nick part ping privmsg quit topic unknown who whois
+SRCS_MAIN		:= main Server Helper
+
+SRCS			:= $(addsuffix .cpp, $(addprefix /cmds/, $(SRCS_CMDS))) \
+				   $(addsuffix .cpp, $(addprefix /main/, $(SRCS_MAIN))) \
 
 OBJS			:= $(addprefix $(SRCS_F), $(SRCS:.cpp=.o))
+
 
 $(NAME):	$(OBJS)
 			@$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJS)
