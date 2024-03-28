@@ -188,6 +188,7 @@ void Server::Check()
 		if (pos == std::string::npos)
 			return;
 		const std::string command = msg.substr(0, pos);
+
 		if (command == "CAP")
 			return cmds->cap(socket, msg);
 		if (command == "JOIN")

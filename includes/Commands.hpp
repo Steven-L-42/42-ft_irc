@@ -18,6 +18,8 @@ private:
 	std::vector<std::string> strTokens;
 	std::vector<std::string>::iterator itToken;
 	std::map<int, Client>::iterator itClient;
+	std::vector<std::string> kickChannels;
+	std::vector<std::string>::iterator itKickChannel;
 	std::string channelName;
 
 public:

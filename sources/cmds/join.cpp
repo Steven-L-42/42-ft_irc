@@ -33,7 +33,7 @@ void Commands::join(int socket, const std::string &msg)
 	}
 
 	// set REPLY MSG and send it back to clientSocket
-	replyMsg = RPL_JOINMSG(clients[socket].Nickname, clients[socket].Hostname, tok_Channel);
+	replyMsg = RPL_JOINMSG(clients[socket].Nickname, clients[socket].Username, clients[socket].Hostname, tok_Channel);
 
 	// add channel to user
 	clients[socket].channel[tok_Channel].isJoined = true;

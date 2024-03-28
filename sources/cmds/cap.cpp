@@ -45,21 +45,23 @@ void Commands::cap(int socket, const std::string &msg)
 		std::cout << magenta << "srvRecv: " << incomingMsg << res;
 
 		// create tokens, split string on each space ' '.
-		strTokens = Helper::splitString(incomingMsg);
-		itToken = strTokens.begin();
+		// strTokens = Helper::splitString(incomingMsg);
+		// itToken = strTokens.begin();
+		std::__1::vector<std::__1::string> capTokens = Helper::splitString(incomingMsg);
+		std::vector<std::string>::iterator itCap = capTokens.begin();
 
 		bool foundPASS = false;
 		// set <password>
-		if (itToken != strTokens.end() && *itToken == "PASS")
+		if (itCap != strTokens.end() && *itCap == "PASS")
 		{
-			if (++itToken != strTokens.end() && !itToken->empty())
-				itToken->erase(0, 1);
-			if (*itToken == srv->getPassword())
+			if (++itCap != strTokens.end() && !itCap->empty())
+				itCap->erase(0, 1);
+			if (*itCap == srv->getPassword())
 			{
 				foundPASS = true;
-				clients[socket].Password = *itToken;
+				clients[socket].Password = *itCap;
 			}
-			++itToken;
+			++itCap;
 		}
 		if (!foundPASS)
 		{
@@ -70,35 +72,39 @@ void Commands::cap(int socket, const std::string &msg)
 		}
 
 		// set <nickname> and send reply to client
-		if (itToken != strTokens.end() && *itToken == "NICK")
+		if (itCap != capTokens.end() && *itCap == "NICK")
 		{
-			if (++itToken != strTokens.end())
-				nick(socket, "NICK " + *itToken + "\r\n");
-			++itToken;
+			if (++itCap != capTokens.end())
+				nick(socket, "NICK " + *itCap + "\r\n");
+			++itCap;
 		}
-		if (itToken != strTokens.end() && *itToken == "USER")
+
+		if (itCap != capTokens.end() && *itCap == "USER")
 		{
+
 			// set <username>
-			if (++itToken != strTokens.end())
-				clients[socket].Username = *itToken;
+			if (++itCap != capTokens.end())
+				clients[socket].Username = *itCap;
+
 			// set <usermode>
-			if (++itToken != strTokens.end())
-				clients[socket].UserMode = *itToken;
+			if (++itCap != capTokens.end())
+				clients[socket].UserMode = *itCap;
+
 			// set <hostname>
-			if (++itToken != strTokens.end())
-				clients[socket].Hostname = *itToken;
+			if (++itCap != capTokens.end())
+				clients[socket].Hostname = *itCap;
+
 			// set <realname>
 			// skip ':1,8' (kvIRC comment)
-			if (++itToken != strTokens.end() && !itToken->empty())
-				itToken->erase(0, 5);
-			while (itToken != strTokens.end())
+			if (++itCap != capTokens.end() && !itCap->empty())
+				itCap->erase(0, 5);
+			while (itCap != capTokens.end())
 			{
-				clients[socket].Realname += *itToken;
-				if (++itToken != strTokens.end())
+				clients[socket].Realname += *itCap;
+				if (++itCap != capTokens.end())
 					clients[socket].Realname += " ";
 			}
 		}
-
 		// send welcome message and login
 		replyMsg = RPL_WELCOME(clients[socket].Nickname);
 		srv->Send(socket, replyMsg);

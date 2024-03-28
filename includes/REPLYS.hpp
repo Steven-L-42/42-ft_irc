@@ -15,11 +15,14 @@
 // send leaving a Channel approvel
 #define RPL_PART(nickname, username, hostname, channel) (":" + nickname + "!" + username + "@" + hostname + " PART " + channel + " ; " + nickname + " is leaving the channel " + channel + CRLF)
 
+// kick user from channel
+#define RPL_KICKUSER(nickname, username, hostname, channel, kickedUser) (":" + nickname + "!" + username +"@"+ hostname + " KICK " + channel + " " + kickedUser + " ; KICK message on channel " + channel + " from " + nickname + " to remove " + kickedUser + " from channel" + CRLF)
+
 // send Message of the Day
 #define RPL_MOTD() (std::string(": 372 :This is our Message of the Day 🌇") + CRLF)
 
 // send Join approvel after user requested joining a channel
-#define RPL_JOINMSG(nickname, ipaddress, channelname) (std::string(":") + nickname + "!" + nickname + "@" + ipaddress + " JOIN " + channelname + CRLF)
+#define RPL_JOINMSG(nickname, username, hostname, channel) (std::string(":") + nickname + "!" + username + "@" + hostname + " JOIN " + channel + CRLF)
 
 // send Message to all other users there on same channel or a single privat user
 #define RPL_MESSAGE(nickname, username, hostname, recipient, message) (std::string(":") + nickname + "!" + username + "@" + hostname + " PRIVMSG " + recipient + " " + message + CRLF)

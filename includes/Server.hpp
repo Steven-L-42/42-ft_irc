@@ -10,7 +10,7 @@ class Commands;
 class Server
 {
 private:
-	Commands* cmds;
+	Commands *cmds;
 	std::map<int, Client> clients;
 	std::map<std::string, Channel> channels;
 	bool _signal;

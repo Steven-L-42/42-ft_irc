@@ -43,7 +43,7 @@ COMMANDS::~COMMANDS()
 
 // 	std::string replyMsg;
 // 	clients-
-// 	clients[socket]->recvMsg = "";
+// 	clients[socket].recvMsg = "";
 // 	std::vector<std::string> strTokens = Helper::splitString(msg);
 // 	std::vector<std::string>::iterator itToken = strTokens.begin();
 // 	itToken++;

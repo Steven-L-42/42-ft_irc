@@ -16,5 +16,6 @@ void Commands::whois(int socket, const std::string &msg)
 		return;
 
 	replyMsg = RPL_WHOIS(clients[socket].Nickname, clientNickname, itClient->second.Username, itClient->second.Hostname, itClient->second.Realname);
+	std::cout << replyMsg;
 	srv->Send(socket, replyMsg);
 }
