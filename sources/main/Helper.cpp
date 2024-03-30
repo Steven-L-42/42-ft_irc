@@ -6,29 +6,11 @@
 /*   By: slippert <slippert@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/08 11:07:03 by slippert          #+#    #+#             */
-/*   Updated: 2024/03/28 13:06:57 by slippert         ###   ########.fr       */
+/*   Updated: 2024/03/30 12:51:31 by slippert         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/Helper.hpp"
-
-std::string Helper::getCurTime()
-{
-	time_t now = time(0);
-	tm *ltm = localtime(&now);
-
-	std::ostringstream ssHour;
-	ssHour << (ltm->tm_hour);
-	std::ostringstream ssMin;
-	ssMin << (ltm->tm_min);
-	std::ostringstream ssSec;
-	ssSec << (ltm->tm_sec);
-	std::string hour((ltm->tm_hour < 10 ? "0" + ssHour.str() : ssHour.str()));
-	std::string min((ltm->tm_min < 10 ? "0" + ssMin.str() : ssMin.str()));
-	std::string sec((ltm->tm_sec < 10 ? "0" + ssSec.str() : ssSec.str()));
-	std::string localTime = "[" + hour + ":" + min + ":" + sec + "] ";
-	return (localTime);
-}
 
 std::string Helper::itoa(int i)
 {

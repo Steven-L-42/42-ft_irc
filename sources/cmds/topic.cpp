@@ -2,8 +2,6 @@
 
 void Commands::topic(int socket, const std::string &msg)
 {
-	clients[socket].recvMsg = "";
-
 	strTokens = Helper::splitString(msg);
 	itToken = strTokens.begin();
 	itToken++;

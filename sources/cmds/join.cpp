@@ -1,8 +1,8 @@
 #include "../../includes/Commands.hpp"
 
+// Join handles to help user to join a channel (/join <channel>)
 void Commands::join(int socket, const std::string &msg)
 {
-	clients[socket].recvMsg = "";
 	bool isNewChannel = false;
 
 	strTokens = Helper::splitString(msg);

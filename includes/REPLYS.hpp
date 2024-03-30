@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 
 #define CRLF "\r\n"
@@ -10,13 +12,13 @@
 #define RPL_WELCOME(nickname) (std::string(": 001 ") + nickname + " :Welcome to the IRC server of 42 Heilbronn 🖥 Team: .:GUNSANSLIP:. 👋😎🍉🏝" + CRLF)
 
 // send Quit approvel with message
-#define RPL_QUIT(nickname, username, hostname, message) (":" + nickname + "!" + username + "@" + hostname + " QUIT :" + message + " ; User " + nickname + " has left the Server: " + message + "." + CRLF)
+#define RPL_QUIT(nickname, username, hostname, reason) (":" + nickname + "!" + username + "@" + hostname + " QUIT :Reason: " + reason + CRLF)
 
 // send leaving a Channel approvel
-#define RPL_PART(nickname, username, hostname, channel) (":" + nickname + "!" + username + "@" + hostname + " PART " + channel + " ; " + nickname + " is leaving the channel " + channel + CRLF)
+#define RPL_PART(nickname, username, hostname, channel, reason) (":" + nickname + "!" + username + "@" + hostname + " PART " + channel + " :Reason: " + reason + CRLF)
 
 // kick user from channel
-#define RPL_KICKUSER(nickname, username, hostname, channel, kickedUser) (":" + nickname + "!" + username +"@"+ hostname + " KICK " + channel + " " + kickedUser + " ; KICK message on channel " + channel + " from " + nickname + " to remove " + kickedUser + " from channel" + CRLF)
+#define RPL_KICKUSER(nickname, username, hostname, channel, kickedUser, reason) (":" + nickname + "!" + username +"@"+ hostname + " KICK " + channel + " " + kickedUser + " :Reason: " + reason + CRLF)
 
 // send Message of the Day
 #define RPL_MOTD() (std::string(": 372 :This is our Message of the Day 🌇") + CRLF)
@@ -71,6 +73,9 @@
 // send Error if user is not Channel Operator
 #define ERR_CHANOPRIVSNEEDED(nickname, channel) (": 482 " + nickname + " " + channel + " :You're not channel operator." + CRLF)
 
+// send Error if nickname is already in use
+#define ERR_NICKNAMEINUSE(nickname, newNickname) (": 433 ERR_NICKNAMEINUSE " + nickname + " :Nickname '" + newNickname + "' is already in use." + CRLF)
+
 #define ERR_NEEDMODEPARM(channelname, mode) (": 696 #" + channelname + " * You must specify a parameter for the key mode. " + mode + CRLF)
 #define ERR_INVALIDMODEPARM(channelname, mode) ": 696 #" + channelname + " Invalid mode parameter. " + mode + CRLF
 #define ERR_KEYSET(channelname) ": 467 #" + channelname + " Channel key already set. " + CRLF
@@ -80,6 +85,5 @@
 #define ERR_NOSUCHNICK(channelname, name) (": 401 #" + channelname + " " + name + " :No such nick/channel" + CRLF)
 #define ERR_ALREADYREGISTERED(nickname) (": 462 " + nickname + " :You may not reregister !" + CRLF)
 #define ERR_NONICKNAME(nickname) (": 431 " + nickname + " :No nickname given" + CRLF)
-#define ERR_NICKINUSE(nickname) (": 433 " + nickname + " :Nickname is already in use" + CRLF)
 #define ERR_ERRONEUSNICK(nickname) (": 432 " + nickname + " :Erroneus nickname" + CRLF)
 #define ERR_NOTREGISTERED(nickname) (": 451 " + nickname + " :You have not registered!" + CRLF)

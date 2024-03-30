@@ -1,8 +1,8 @@
 #include "../../includes/Commands.hpp"
 
+// Sends and handles private and channel messages
 void Commands::privmsg(int socket, const std::string &msg)
 {
-	clients[socket].recvMsg = "";
 	strTokens = Helper::splitString(msg);
 	itToken = strTokens.begin();
 	itToken++;
@@ -15,12 +15,19 @@ void Commands::privmsg(int socket, const std::string &msg)
 		if (++itToken != strTokens.end())
 			message += " ";
 	}
+
 	replyMsg = RPL_MESSAGE(clients[socket].Nickname, clients[socket].Username, clients[socket].Hostname, NickOrChannel, message);
 
-	for (itClient = clients.begin(); itClient != clients.end(); itClient++)
+	// if i private mail myself
+	if (clients[socket].Nickname == NickOrChannel)
+		srv->Send(socket, replyMsg);
+	else
 	{
-		if (itClient->first == socket && clients[socket].Nickname != NickOrChannel)
-			continue;
-		srv->Send(itClient->first, replyMsg);
+		// send message to all in channel, but not myself
+		for (itClient = clients.begin(); itClient != clients.end(); itClient++)
+		{
+			if (itClient->first != socket)
+				srv->Send(itClient->first, replyMsg);
+		}
 	}
 }

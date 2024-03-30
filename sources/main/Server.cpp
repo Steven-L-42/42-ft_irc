@@ -178,12 +178,13 @@ void Server::Check()
 	std::map<int, Client>::iterator it;
 	for (it = clients.begin(); it != clients.end(); it++)
 	{
-		if (!it->second.Connected)
+		if (!it->second.Connected || it->second.recvMsg == "")
 			continue;
+
 		int socket = it->first;
 		std::string msg = it->second.recvMsg;
-		if (msg == "")
-			return;
+		it->second.recvMsg = "";
+
 		size_t pos = msg.find(" ");
 		if (pos == std::string::npos)
 			return;

@@ -1,24 +1,40 @@
 #include "../../includes/Commands.hpp"
 
+// kicks a user from current channel (/kick <user>)
 void Commands::kick(int socket, const std::string &msg)
 {
-	clients[socket].recvMsg = "";
 	// create tokens, split string on each space ' '.
 	strTokens = Helper::splitString(msg);
 	itToken = strTokens.begin();
 	itToken++;
 
-	for (; itToken != strTokens.cend()--; itToken++)
-		kickChannels.push_back(*itToken);
+	std::string channel = *itToken++;
+	std::string kickedUser = *itToken++;
 
-	std::string kickedUser = *itToken;
+	std::string reason = "";
+	if (itToken != strTokens.end())
+	{
+		itToken->erase(0, 1);
+		for (; itToken != strTokens.end();)
+		{
+			reason += *itToken;
+			if (++itToken != strTokens.end())
+				reason += " ";
+		}
+	}
+	else
+		reason = "none";
+
 	std::string nickname = clients[socket].Nickname;
 	std::string username = clients[socket].Username;
 	std::string hostname = clients[socket].Hostname;
 
-	for (itKickChannel = kickChannels.begin(); itKickChannel != kickChannels.cend(); itKickChannel++)
+	for (itClient = clients.begin(); itClient != clients.end(); itClient++)
 	{
-		replyMsg = RPL_KICKUSER(nickname, username, hostname, *itKickChannel, kickedUser);
-		srv->Send(socket, replyMsg);
+		if (itClient->second.channel.find(channel) != itClient->second.channel.end())
+		{
+			replyMsg = RPL_KICKUSER(nickname, username, hostname, channel, kickedUser, reason);
+			srv->Send(itClient->first, replyMsg);
+		}
 	}
 }

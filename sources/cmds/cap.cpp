@@ -1,14 +1,16 @@
 #include "../../includes/Commands.hpp"
 
+// CAP is the login procedure, it is the first thing that
+// the Server receives after getting a incoming connection request
 void Commands::cap(int socket, const std::string &msg)
 {
-	clients[socket].recvMsg = "";
 	strTokens = Helper::splitString(msg);
 	itToken = strTokens.begin();
 	itToken++;
 
 	if (*itToken == "LS")
 	{
+		std::cout << "TEST" << std::endl;
 		replyMsg = "CAP * LS :multi-prefix sasl\r\n";
 		srv->Send(socket, replyMsg);
 		return;
