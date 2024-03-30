@@ -16,10 +16,10 @@ public:
 	std::string recvMsg;
 	class Channel
 	{
-		public:
-			bool isJoined;
-			bool isOp;
+	public:
+		bool isJoined;
+		bool isOp;
 	};
-	std::map<std::string, Channel> channel;
+	std::map<std::string, Channel> channels;
 	bool Connected;
 };

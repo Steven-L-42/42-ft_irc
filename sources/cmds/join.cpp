@@ -36,17 +36,17 @@ void Commands::join(int socket, const std::string &msg)
 	replyMsg = RPL_JOINMSG(clients[socket].Nickname, clients[socket].Username, clients[socket].Hostname, tok_Channel);
 
 	// add channel to user
-	clients[socket].channel[tok_Channel].isJoined = true;
+	clients[socket].channels[tok_Channel].isJoined = true;
 
 	for (itClient = clients.begin(); itClient != clients.end(); itClient++)
 	{
-		if (itClient->second.channel[tok_Channel].isJoined == true)
+		if (itClient->second.channels[tok_Channel].isJoined == true)
 			srv->Send(itClient->first, replyMsg);
 	}
 
 	if (isNewChannel)
 	{
-		clients[socket].channel[tok_Channel].isOp = true;
+		clients[socket].channels[tok_Channel].isOp = true;
 		replyMsg = RPL_UMODEIS(clients[socket].Hostname, tok_Channel, "+o", clients[socket].Nickname);
 		srv->Send(socket, replyMsg);
 	}

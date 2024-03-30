@@ -10,31 +10,39 @@ void Commands::kick(int socket, const std::string &msg)
 
 	std::string channel = *itToken++;
 	std::string kickedUser = *itToken++;
-
-	std::string reason = "";
-	if (itToken != strTokens.end())
+	if (clients[socket].channels[channel].isOp == true)
 	{
-		itToken->erase(0, 1);
-		for (; itToken != strTokens.end();)
+		std::string reason = "";
+		if (itToken != strTokens.end())
 		{
-			reason += *itToken;
-			if (++itToken != strTokens.end())
-				reason += " ";
+			itToken->erase(0, 1);
+			for (; itToken != strTokens.end();)
+			{
+				reason += *itToken;
+				if (++itToken != strTokens.end())
+					reason += " ";
+			}
+		}
+		else
+			reason = "none";
+
+		std::string nickname = clients[socket].Nickname;
+		std::string username = clients[socket].Username;
+		std::string hostname = clients[socket].Hostname;
+
+		for (itClient = clients.begin(); itClient != clients.end(); itClient++)
+		{
+			if (itClient->second.channels.find(channel) != itClient->second.channels.end())
+			{
+				replyMsg = RPL_KICKUSER(nickname, username, hostname, channel, kickedUser, reason);
+				srv->Send(itClient->first, replyMsg);
+			}
 		}
 	}
 	else
-		reason = "none";
-
-	std::string nickname = clients[socket].Nickname;
-	std::string username = clients[socket].Username;
-	std::string hostname = clients[socket].Hostname;
-
-	for (itClient = clients.begin(); itClient != clients.end(); itClient++)
 	{
-		if (itClient->second.channel.find(channel) != itClient->second.channel.end())
-		{
-			replyMsg = RPL_KICKUSER(nickname, username, hostname, channel, kickedUser, reason);
-			srv->Send(itClient->first, replyMsg);
-		}
+		// client is not an operator - Error
+		replyMsg = ERR_CHANOPRIVSNEEDED(clients[socket].Nickname, channel);
+		srv->Send(socket, replyMsg);
 	}
 }

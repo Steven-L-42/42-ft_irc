@@ -14,9 +14,9 @@ void Commands::who(int socket, const std::string &msg)
 	std::string userList = "";
 	for (itClient = clients.begin(); itClient != clients.end();)
 	{
-		if (itClient->second.channel[channelName].isJoined == true)
+		if (itClient->second.channels[channelName].isJoined == true)
 		{
-			userList += (itClient->second.channel[channelName].isOp ? "@" : "") + itClient->second.Nickname;
+			userList += (itClient->second.channels[channelName].isOp ? "@" : "") + itClient->second.Nickname;
 			itClient++;
 			if (itClient != clients.end())
 				userList += " ";

@@ -26,10 +26,10 @@ void Commands::part(int socket, const std::string &msg)
 
 	for (itClient = clients.begin(); itClient != clients.end(); itClient++)
 	{
-		if (itClient->second.channel[channelName].isJoined == true)
+		if (itClient->second.channels[channelName].isJoined == true)
 			srv->Send(itClient->first, replyMsg);
 	}
 	// remove channel from user
-	if (clients[socket].channel[channelName].isJoined == true)
-		clients[socket].channel.erase(clients[socket].channel.find(channelName));
+	if (clients[socket].channels[channelName].isJoined == true)
+		clients[socket].channels.erase(clients[socket].channels.find(channelName));
 }

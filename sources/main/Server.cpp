@@ -188,7 +188,7 @@ void Server::Check()
 		size_t pos = msg.find(" ");
 		if (pos == std::string::npos)
 			return;
-		const std::string command = msg.substr(0, pos);
+		std::string command = msg.substr(0, pos);
 
 		if (command == "CAP")
 			return cmds->cap(socket, msg);
@@ -214,7 +214,10 @@ void Server::Check()
 			return cmds->quit(socket, msg);
 		if (command == "TOPIC")
 			return cmds->topic(socket, msg);
-
+		// invite is a custom command of kvIRC and needs to be handled separatly
+		std::transform(command.begin(), command.end(), command.begin(), ::toupper);
+		if (command == "INVITE")
+			return cmds->invite(socket, msg);
 		cmds->unknown(socket, msg);
 	}
 }

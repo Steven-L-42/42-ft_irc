@@ -10,7 +10,6 @@ void Commands::cap(int socket, const std::string &msg)
 
 	if (*itToken == "LS")
 	{
-		std::cout << "TEST" << std::endl;
 		replyMsg = "CAP * LS :multi-prefix sasl\r\n";
 		srv->Send(socket, replyMsg);
 		return;

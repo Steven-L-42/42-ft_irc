@@ -20,7 +20,7 @@ void Commands::topic(int socket, const std::string &msg)
 		return;
 	}
 	// if more then 2 && client is Operator then change channel topic
-	if (clients[socket].channel[channelName].isOp == true)
+	if (clients[socket].channels[channelName].isOp == true)
 	{
 		itToken++;
 		std::string message = "";

@@ -73,16 +73,26 @@
 // send Error if user is not Channel Operator
 #define ERR_CHANOPRIVSNEEDED(nickname, channel) (": 482 " + nickname + " " + channel + " :You're not channel operator." + CRLF)
 
-// send Error if nickname is already in use
+// send Error if nickname is already in use (format have to be exact like this ': 433 ERR_NICKNAMEINUSE ')
 #define ERR_NICKNAMEINUSE(nickname, newNickname) (": 433 ERR_NICKNAMEINUSE " + nickname + " :Nickname '" + newNickname + "' is already in use." + CRLF)
+
+// if the command needs more parameters
+#define ERR_NEEDMOREPARAMS(nickname) (": 461 " + nickname + " :Not enough parameters." + CRLF)
+
+// if user oder channel is not found
+#define ERR_NOSUCHNICK(invitedUser, nickname) (": 401 " + invitedUser + " " + nickname + " :" + invitedUser + " is not a known user." + CRLF)
+
+// if user oder channel is not found
+#define ERR_NOSUCHCHANNEL(channel, nickname) (": 401 " + channel + " " + nickname + " :" + channel + " is not a known channel." + CRLF)
+
+// if invited user is already on channel
+#define ERR_USERONCHANNEL(nickname, channel) (": 443 ERR_USERONCHANNEL " + nickname + " " + channel + CRLF)
 
 #define ERR_NEEDMODEPARM(channelname, mode) (": 696 #" + channelname + " * You must specify a parameter for the key mode. " + mode + CRLF)
 #define ERR_INVALIDMODEPARM(channelname, mode) ": 696 #" + channelname + " Invalid mode parameter. " + mode + CRLF
 #define ERR_KEYSET(channelname) ": 467 #" + channelname + " Channel key already set. " + CRLF
 #define ERR_UNKNOWNMODE(nickname, channelname, mode) ": 472 " + nickname + " #" + channelname + " " + mode + " :is not a recognised channel mode" + CRLF
-#define ERR_NOTENOUGHPARAM(nickname) (": 461 " + nickname + " :Not enough parameters." + CRLF)
 #define ERR_CHANNELNOTFOUND(nickname, channelname) (": 403 " + nickname + " " + channelname + " :No such channel" + CRLF)
-#define ERR_NOSUCHNICK(channelname, name) (": 401 #" + channelname + " " + name + " :No such nick/channel" + CRLF)
 #define ERR_ALREADYREGISTERED(nickname) (": 462 " + nickname + " :You may not reregister !" + CRLF)
 #define ERR_NONICKNAME(nickname) (": 431 " + nickname + " :No nickname given" + CRLF)
 #define ERR_ERRONEUSNICK(nickname) (": 432 " + nickname + " :Erroneus nickname" + CRLF)

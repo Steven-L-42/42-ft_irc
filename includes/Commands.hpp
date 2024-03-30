@@ -29,6 +29,7 @@ public:
 	void nick(int socket, const std::string &msg);
 	void join(int socket, const std::string &msg);
 	void kick(int socket, const std::string &msg);
+	void invite(int socket, const std::string &msg);
 	void mode(int socket, const std::string &msg);
 	void part(int socket, const std::string &msg);
 	void ping(int socket, const std::string &msg);
