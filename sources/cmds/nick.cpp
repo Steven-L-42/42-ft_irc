@@ -10,7 +10,8 @@ void Commands::nick(int socket, const std::string &msg)
 	for (itClient = clients.begin(); itClient != clients.end(); itClient++)
 	{
 		if (itClient->second.Nickname == newNickname)
-		{	replyMsg = ERR_NICKNAMEINUSE(clients[socket].Nickname, newNickname);
+		{
+			replyMsg = ERR_NICKNAMEINUSE(clients[socket].Nickname, newNickname);
 			srv->Send(socket, replyMsg);
 			return;
 		}
@@ -18,7 +19,7 @@ void Commands::nick(int socket, const std::string &msg)
 
 	// set REPLY MSG and send it back to clientSocket
 	replyMsg = RPL_NICKCHANGE(clients[socket].Nickname, newNickname);
-	
+
 	for (itClient = clients.begin(); itClient != clients.end(); itClient++)
 		srv->Send(itClient->first, replyMsg);
 	// overwrite old nickname

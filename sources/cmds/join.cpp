@@ -1,6 +1,6 @@
 #include "../../includes/Commands.hpp"
 
-// Join handles to help user to join a channel (/join <channel>)
+// Join help user to join a channel (/join <channel>)
 void Commands::join(int socket, const std::string &msg)
 {
 	bool isNewChannel = false;

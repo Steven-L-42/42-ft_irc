@@ -1,5 +1,6 @@
 #include "../../includes/Commands.hpp"
 
+// send a detailed information about the requested user (/whois <nickname>)
 void Commands::whois(int socket, const std::string &msg)
 {
 	strTokens = Helper::splitString(msg);
@@ -12,9 +13,11 @@ void Commands::whois(int socket, const std::string &msg)
 			break;
 	}
 	if (itClient == clients.end())
+	{
+		replyMsg = ERR_NOSUCHNICK(clientNickname, clients[socket].Nickname);
+		srv->Send(socket, replyMsg);
 		return;
-
+	}
 	replyMsg = RPL_WHOIS(clients[socket].Nickname, clientNickname, itClient->second.Username, itClient->second.Hostname, itClient->second.Realname);
-	std::cout << replyMsg;
 	srv->Send(socket, replyMsg);
 }

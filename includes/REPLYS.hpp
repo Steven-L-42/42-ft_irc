@@ -18,7 +18,7 @@
 #define RPL_PART(nickname, username, hostname, channel, reason) (":" + nickname + "!" + username + "@" + hostname + " PART " + channel + " :Reason: " + reason + CRLF)
 
 // kick user from channel
-#define RPL_KICKUSER(nickname, username, hostname, channel, kickedUser, reason) (":" + nickname + "!" + username +"@"+ hostname + " KICK " + channel + " " + kickedUser + " :Reason: " + reason + CRLF)
+#define RPL_KICKUSER(nickname, username, hostname, channel, kickedUser, reason) (":" + nickname + "!" + username + "@" + hostname + " KICK " + channel + " " + kickedUser + " :Reason: " + reason + CRLF)
 
 // send Message of the Day
 #define RPL_MOTD() (std::string(": 372 :This is our Message of the Day 🌇") + CRLF)
@@ -41,31 +41,33 @@
 // <client>: Nickname of the user being WHOIS‘d.
 // <username>: Username of the user.
 // <hostname>: Hostname of the user.
-// <realname>: Realname (or “gecos”) of the user.
+// <realname>: Realname of the user.
 #define RPL_WHOIS(nickname, nicknameWho, usernameWho, hostnameWho, realnameWho) (": 311 " + nickname + " " + nicknameWho + " " + usernameWho + " " + hostnameWho + " * :" + realnameWho + CRLF)
 
 // Set Channel Topic
 #define RPL_SETCHTOPIC(nickname, username, hostname, channel, message) (std::string(":") + nickname + "!" + username + "@" + hostname + " TOPIC " + channel + " :" + message + CRLF)
 // Send Channel Topic
-#define RPL_CHTOPIC(nickname, channelname, topic) (": 332 " + nickname + " " + channelname + " :" + topic + CRLF)
+#define RPL_CHTOPIC(nickname, channel, topic) (": 332 " + nickname + " " + channel + " :" + topic + CRLF)
 // Send UserList
-#define RPL_USERLIST(nickname, channelname, clientslist) (": 353 " + nickname + " @ " + channelname + " :" + clientslist + CRLF)
+#define RPL_USERLIST(nickname, channel, clientslist) (": 353 " + nickname + " @ " + channel + " :" + clientslist + CRLF)
 // Send End of UserList
-#define RPL_ENDOFUSERLIST(nickname, channelname) (": 366 " + nickname + " " + channelname + " :END of /NAMES list" + CRLF)
+#define RPL_ENDOFUSERLIST(nickname, channel) (": 366 " + nickname + " " + channel + " :END of /NAMES list" + CRLF)
 
-// Send Channel Creationtime
-#define RPL_CREATIONTIME(nickname, channelname, creationtime) (": 329 " + nickname + " #" + channelname + " " + creationtime + CRLF)
+/////// currently not used
+// // Send Channel Creationtime
+// #define RPL_CREATIONTIME(nickname, channel, creationtime) (": 329 " + nickname + " " + channel + " " + creationtime + CRLF)
 
-// send Channelmodes as answer to "MODE #channelname"
-#define RPL_CHANNELMODEIS(nickname, channelname, modes) (": 324 " + nickname + " #" + channelname + " " + modes + CRLF)
+// // send Channelmodes as answer to "MODE #channel"
+// #define RPL_CHANNELMODEIS(nickname, channel, modes) (": 324 " + nickname + " " + channel + " " + modes + CRLF)
 
-#define RPL_UMODEIS(hostname, channelname, mode, user) ":" + hostname + " MODE " + channelname + " " + mode + " " + user + CRLF
-#define RPL_CHANGEMODE(hostname, channelname, mode, arguments) (":" + hostname + " MODE #" + channelname + " " + mode + " " + arguments + CRLF)
+// #define RPL_UMODEIS(hostname, channel, mode, user) ":" + hostname + " MODE " + channel + " " + mode + " " + user + CRLF
+// #define RPL_CHANGEMODE(hostname, channel, mode, arguments) (":" + hostname + " MODE " + channel + " " + mode + " " + arguments + CRLF)
+///////
 
 //// ERROR CODES
 
 // send Password incorrect if password does not match
-#define ERR_PASSWDMISMATCH(nickname) (": 464 " + nickname + " :Password incorrect" + CRLF)
+#define ERR_PASSWDMISMATCH(nickname) (": 464 " + nickname + " :Password incorrect." + CRLF)
 
 // send Error that this command is unknown
 #define ERR_UNKNOWNCOMMAND(nickname, command) (": 421 " + nickname + " " + command + " :Unknown command!" + CRLF)
@@ -79,21 +81,25 @@
 // if the command needs more parameters
 #define ERR_NEEDMOREPARAMS(nickname) (": 461 " + nickname + " :Not enough parameters." + CRLF)
 
-// if user oder channel is not found
-#define ERR_NOSUCHNICK(invitedUser, nickname) (": 401 " + invitedUser + " " + nickname + " :" + invitedUser + " is not a known user." + CRLF)
+// if user is not found
+#define ERR_NOSUCHNICK(invitedUser, nickname) (": 401 " + invitedUser + " " + nickname + " :'" + invitedUser + "' is not a known user." + CRLF)
 
-// if user oder channel is not found
-#define ERR_NOSUCHCHANNEL(channel, nickname) (": 401 " + channel + " " + nickname + " :" + channel + " is not a known channel." + CRLF)
+// if user is not found
+#define ERR_NOTSAMECHANNEL(invitedUser, nickname, channel) (": 401 " + invitedUser + " " + nickname + " :'" + invitedUser + "' hasn't joined to '" + channel + "'." + CRLF)
+
+// if channel is not found
+#define ERR_NOSUCHCHANNEL(channel, nickname) (": 401 " + channel + " " + nickname + " :'" + channel + "' is not a known channel." + CRLF)
 
 // if invited user is already on channel
 #define ERR_USERONCHANNEL(nickname, channel) (": 443 ERR_USERONCHANNEL " + nickname + " " + channel + CRLF)
 
-#define ERR_NEEDMODEPARM(channelname, mode) (": 696 #" + channelname + " * You must specify a parameter for the key mode. " + mode + CRLF)
-#define ERR_INVALIDMODEPARM(channelname, mode) ": 696 #" + channelname + " Invalid mode parameter. " + mode + CRLF
-#define ERR_KEYSET(channelname) ": 467 #" + channelname + " Channel key already set. " + CRLF
-#define ERR_UNKNOWNMODE(nickname, channelname, mode) ": 472 " + nickname + " #" + channelname + " " + mode + " :is not a recognised channel mode" + CRLF
-#define ERR_CHANNELNOTFOUND(nickname, channelname) (": 403 " + nickname + " " + channelname + " :No such channel" + CRLF)
-#define ERR_ALREADYREGISTERED(nickname) (": 462 " + nickname + " :You may not reregister !" + CRLF)
-#define ERR_NONICKNAME(nickname) (": 431 " + nickname + " :No nickname given" + CRLF)
-#define ERR_ERRONEUSNICK(nickname) (": 432 " + nickname + " :Erroneus nickname" + CRLF)
-#define ERR_NOTREGISTERED(nickname) (": 451 " + nickname + " :You have not registered!" + CRLF)
+/////// currently not used
+// #define ERR_NEEDMODEPARM(channel, mode) (": 696 " + channel + " * You must specify a parameter for the key mode. " + mode + CRLF)
+// #define ERR_INVALIDMODEPARM(channel, mode) ": 696 " + channel + " Invalid mode parameter. " + mode + CRLF
+// #define ERR_KEYSET(channel) ": 467 " + channel + " Channel key already set. " + CRLF
+// #define ERR_UNKNOWNMODE(nickname, channel, mode) ": 472 " + nickname + " #" + channel + " " + mode + " :is not a recognised channel mode" + CRLF
+// #define ERR_ALREADYREGISTERED(nickname) (": 462 " + nickname + " :You may not reregister !" + CRLF)
+// #define ERR_NONICKNAME(nickname) (": 431 " + nickname + " :No nickname given" + CRLF)
+// #define ERR_ERRONEUSNICK(nickname) (": 432 " + nickname + " :Erroneus nickname" + CRLF)
+// #define ERR_NOTREGISTERED(nickname) (": 451 " + nickname + " :You have not registered!" + CRLF)
+///////

@@ -1,6 +1,6 @@
 #include "../../includes/Commands.hpp"
 
-// kicks a user from current channel (/kick <user>)
+// kicks a user from current channel (/kick <user>) (only operator)
 void Commands::kick(int socket, const std::string &msg)
 {
 	// create tokens, split string on each space ' '.
@@ -12,6 +12,29 @@ void Commands::kick(int socket, const std::string &msg)
 	std::string kickedUser = *itToken++;
 	if (clients[socket].channels[channel].isOp == true)
 	{
+		std::map<int, Client>::iterator itKickUser;
+		// search for user in clients
+		for (itKickUser = clients.begin(); itKickUser != clients.end(); itKickUser++)
+		{
+			if (itKickUser->second.Nickname == kickedUser)
+				break;
+		}
+
+		// if nickname does not exist, send error code.
+		if (itKickUser == clients.end())
+		{
+			replyMsg = ERR_NOSUCHNICK(kickedUser, clients[socket].Nickname);
+			srv->Send(socket, replyMsg);
+			return;
+		}
+		else if (itKickUser->second.channels.find(channel) == itKickUser->second.channels.end())
+		{
+			replyMsg = ERR_NOTSAMECHANNEL(kickedUser, clients[socket].Nickname, channel);
+			srv->Send(socket, replyMsg);
+			return;
+		}
+
+		// parse the reason message
 		std::string reason = "";
 		if (itToken != strTokens.end())
 		{
@@ -30,6 +53,7 @@ void Commands::kick(int socket, const std::string &msg)
 		std::string username = clients[socket].Username;
 		std::string hostname = clients[socket].Hostname;
 
+		// send the kicked message to all users on same channel
 		for (itClient = clients.begin(); itClient != clients.end(); itClient++)
 		{
 			if (itClient->second.channels.find(channel) != itClient->second.channels.end())
@@ -38,6 +62,7 @@ void Commands::kick(int socket, const std::string &msg)
 				srv->Send(itClient->first, replyMsg);
 			}
 		}
+		clients[itKickUser->first].channels.erase(clients[itKickUser->first].channels.find(channel));
 	}
 	else
 	{

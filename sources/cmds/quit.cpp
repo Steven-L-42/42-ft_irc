@@ -1,5 +1,6 @@
 #include "../../includes/Commands.hpp"
 
+// quits a user from the channel at request (/quit <with or without reason>)
 void Commands::quit(int socket, const std::string &msg)
 {
 	// substract whole message after 'QUIT '
@@ -27,7 +28,7 @@ void Commands::quit(int socket, const std::string &msg)
 	// prepare reply and set connected to false
 	replyMsg = RPL_QUIT(nickname, username, hostname, reason);
 	clients[socket].Connected = false;
-	
+
 	for (itClient = clients.begin(); itClient != clients.end(); itClient++)
 		srv->Send(itClient->first, replyMsg);
 }

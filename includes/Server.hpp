@@ -10,14 +10,13 @@ class Commands;
 class Server
 {
 private:
-	Commands *cmds;
-	std::map<int, Client> clients;
-	std::map<std::string, Channel> channels;
-	bool _signal;
+	static const int _maxConnections = 128;
 	int _socket;
+	Commands *cmds;
 	const int _port;
 	const std::string _password;
-	static const int _maxConnections = 128;
+	std::map<int, Client> clients;
+	std::map<std::string, Channel> channels;
 	struct sockaddr_in _ServerAddress;
 	struct sockaddr_in _ClientAddress;
 	socklen_t _ClientAddrLen;

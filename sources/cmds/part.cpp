@@ -1,5 +1,6 @@
 #include "../../includes/Commands.hpp"
 
+// helps a user to leave a channel (/leave <channel> <with or without reason>)
 void Commands::part(int socket, const std::string &msg)
 {
 	strTokens = Helper::splitString(msg);

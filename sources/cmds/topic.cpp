@@ -1,5 +1,6 @@
 #include "../../includes/Commands.hpp"
 
+// display or change a topic (only operator) (/topic or /topic <new Topic>)
 void Commands::topic(int socket, const std::string &msg)
 {
 	strTokens = Helper::splitString(msg);

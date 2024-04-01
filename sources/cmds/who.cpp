@@ -1,5 +1,6 @@
 #include "../../includes/Commands.hpp"
 
+// send a list with all current active users to client
 void Commands::who(int socket, const std::string &msg)
 {
 	strTokens = Helper::splitString(msg);

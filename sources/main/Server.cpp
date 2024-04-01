@@ -2,7 +2,7 @@
 
 bool Server::Signal = false;
 
-Server::Server(int port, std::string password) : _port(port), _password(password), _signal(false), cmds(NULL)
+Server::Server(int port, std::string password) : _port(port), _password(password), cmds(NULL)
 {
 	cmds = new Commands(this);
 }
@@ -31,14 +31,14 @@ std::string Server::getPassword()
 
 bool Server::getSignal()
 {
-	return (_signal);
+	return (Signal);
 }
 
 void Server::SignalHandler(int signum)
 {
 	(void)signum;
 	Server::Signal = true;
-	std::cout << red << "killed Signal" << res << std::endl;
+	std::cout << red << "kill signal received!" << res << std::endl;
 }
 
 void Server::start()
@@ -60,7 +60,8 @@ void Server::srvInit()
 	_ServerAddress.sin_addr.s_addr = INADDR_ANY; // allows connection to any ip address
 	_ServerAddress.sin_port = htons(_port);		 // converts from host byte to network byte
 
-	int en = 1;
+	int en = 1; // activates the option SO_REUSEADDR
+
 	// settings setsockopt to SO_REUSEADDR allows to use the same port directly after closing
 	// with SOL_SOCKET we say that we want this action to our used _socket
 	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &en, sizeof(en)) == -1)
@@ -75,29 +76,38 @@ void Server::srvInit()
 	if (fcntl(_socket, F_SETFL, O_NONBLOCK) == -1)
 		throw(std::runtime_error("Error: fcntl"));
 
-	// marks our _socket to a passiv Socket which cann accept incoming connection.
+	// marks our _socket to a passive socket which can accept incoming connection.
 	// also only allows _maxConnections connections at the same time
 	if ((listen(_socket, _maxConnections)) == -1)
 		throw(std::runtime_error("Error: listen"));
 }
-
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 void Server::srvLstn()
 {
-	std::cout << blue << "~ Server is running | Port: " << _port << " | Password: " << _password << " ~ " << res << std::endl;
-	std::cout << std::endl;
+	std::cout << blue << "\n~ Server is running | Port: " << _port << " | Password: " << _password << " ~ \n"
+			  << res << std::endl;
+
 	fd_set read_set;
+
+	// create timeval struct and set timeout to 0 (non blocking).
 	struct timeval timeout;
 	timeout.tv_sec = 0;
 	timeout.tv_usec = 0;
 
 	while (Server::Signal == false)
 	{
-		// Reset read_set, re-set it to _socket and re-fill read_set with known _sockets
+		// resetting read_set each cycle ensures that only the current active sockets will be used when select is called.
 		FD_ZERO(&read_set);
+		// add main socket to read_set.
 		FD_SET(_socket, &read_set);
+		// add all active clientSockets to read_set.
 		for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it)
 			FD_SET(it->first, &read_set);
 		// select waits for incoming connections and checks if we are receiving data to read
+		// also, select now listens to the addet connections in read_set.
+		// means: if we reach the limit of _maxConnections, select will still listen to the known stored clientSockets.
 		int ret = select(_socket + 1, &read_set, NULL, NULL, &timeout);
 		if (ret == -1 && Server::Signal == false)
 			throw(std::runtime_error("Error: select"));
@@ -109,12 +119,20 @@ void Server::srvLstn()
 			}
 			else
 			{
+				// check if main socket is available in read_set
 				if (FD_ISSET(_socket, &read_set))
 				{
 					_ClientAddrLen = sizeof(_ClientAddress);
 					int _clientSocket = accept(_socket, (struct sockaddr *)&_ClientAddress, &_ClientAddrLen);
 					if (_clientSocket == -1)
 						throw(std::runtime_error("Error: accept"));
+
+					// convert address to ip address and network byte port to int port
+					unsigned long clientIP = ntohl(_ClientAddress.sin_addr.s_addr);
+					int clientPort = ntohs(_ClientAddress.sin_port);
+					// format and output ip address in common known format
+					std::string formattedIP = Helper::itoa((clientIP >> 24) & 0xFF) + "." +  Helper::itoa((clientIP >> 16) & 0xFF) + "." + Helper::itoa((clientIP >> 8) & 0xFF) + "." +  Helper::itoa((clientIP) & 0xFF);
+					std::cout << blue << "New connection from IP: " << formattedIP << ", Port: " << clientPort << res << std::endl;
 
 					Client newClient;
 					newClient.socket = _clientSocket;
@@ -125,7 +143,6 @@ void Server::srvLstn()
 					newClient.Realname = "";
 					newClient.Connected = true;
 					clients[_clientSocket] = newClient;
-					FD_SET(_clientSocket, &read_set);
 				}
 			}
 			Recv();
@@ -161,10 +178,15 @@ void Server::Recv()
 	{
 		if (!it->second.Connected)
 			continue;
+
 		char buffer[1024];
 		ssize_t bytes_received = recv(it->first, buffer, sizeof(buffer), 0);
-		if (bytes_received < 1)
+		if (bytes_received <= 0)
+		{
+			// if (bytes_received == -1)
+			// 	std::cout << "Client: " << it->first << " : Error RECV" << std::endl;
 			continue;
+		}
 
 		buffer[bytes_received] = '\0';
 		it->second.recvMsg = std::string(buffer);
@@ -226,6 +248,6 @@ void Server::Check()
 void Server::Send(int _clientSocket, const std::string &message)
 {
 	if (!send(_clientSocket, message.c_str(), message.size(), 0))
-		std::cout << "Client: " << _clientSocket << " : ERROR" << std::endl;
+		std::cout << "Client: " << _clientSocket << " : Error SEND" << std::endl;
 	std::cout << green << "srvSend: " << message << res;
 }
