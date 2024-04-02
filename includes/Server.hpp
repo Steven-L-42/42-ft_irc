@@ -10,7 +10,6 @@ class Commands;
 class Server
 {
 private:
-	static const int _maxConnections = 128;
 	int _socket;
 	Commands *cmds;
 	const int _port;
@@ -21,8 +20,10 @@ private:
 	struct sockaddr_in _ClientAddress;
 	socklen_t _ClientAddrLen;
 
+	static const int _maxConnections = 128;
 	static bool Signal;
 	static void SignalHandler(int signum);
+
 	void srvInit();
 	void srvLstn();
 	void Recv();
@@ -39,4 +40,3 @@ public:
 	~Server();
 	void start();
 };
-

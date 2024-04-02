@@ -22,4 +22,6 @@ public:
 	};
 	std::map<std::string, Channel> channels;
 	bool Connected;
+	std::string LoginProcess;
+	bool Accepted;
 };

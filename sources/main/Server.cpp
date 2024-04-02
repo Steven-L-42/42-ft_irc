@@ -2,7 +2,7 @@
 
 bool Server::Signal = false;
 
-Server::Server(int port, std::string password) : _port(port), _password(password), cmds(NULL)
+Server::Server(int port, std::string password) : cmds(NULL), _port(port), _password(password)
 {
 	cmds = new Commands(this);
 }
@@ -131,7 +131,7 @@ void Server::srvLstn()
 					unsigned long clientIP = ntohl(_ClientAddress.sin_addr.s_addr);
 					int clientPort = ntohs(_ClientAddress.sin_port);
 					// format and output ip address in common known format
-					std::string formattedIP = Helper::itoa((clientIP >> 24) & 0xFF) + "." +  Helper::itoa((clientIP >> 16) & 0xFF) + "." + Helper::itoa((clientIP >> 8) & 0xFF) + "." +  Helper::itoa((clientIP) & 0xFF);
+					std::string formattedIP = Helper::itoa((clientIP >> 24) & 0xFF) + "." + Helper::itoa((clientIP >> 16) & 0xFF) + "." + Helper::itoa((clientIP >> 8) & 0xFF) + "." + Helper::itoa((clientIP) & 0xFF);
 					std::cout << blue << "New connection from IP: " << formattedIP << ", Port: " << clientPort << res << std::endl;
 
 					Client newClient;
@@ -141,7 +141,10 @@ void Server::srvLstn()
 					newClient.UserMode = "";
 					newClient.Hostname = "";
 					newClient.Realname = "";
+					newClient.Password = "";
 					newClient.Connected = true;
+					newClient.Accepted = false;
+					newClient.LoginProcess = "NEW";
 					clients[_clientSocket] = newClient;
 				}
 			}
@@ -212,7 +215,7 @@ void Server::Check()
 			return;
 		std::string command = msg.substr(0, pos);
 
-		if (command == "CAP")
+		if (command == "CAP" || it->second.LoginProcess == "END")
 			return cmds->cap(socket, msg);
 		if (command == "JOIN")
 			return cmds->join(socket, msg);
@@ -229,7 +232,7 @@ void Server::Check()
 		if (command == "MODE")
 			return cmds->mode(socket, msg);
 		if (command == "PING")
-			return cmds->ping(socket, msg);
+			return cmds->ping(socket);
 		if (command == "KICK")
 			return cmds->kick(socket, msg);
 		if (command == "QUIT")

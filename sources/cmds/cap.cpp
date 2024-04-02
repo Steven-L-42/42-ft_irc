@@ -24,47 +24,30 @@ void Commands::cap(int socket, const std::string &msg)
 	}
 	if (*itToken == "END")
 	{
-		std::string incomingMsg;
-		// wait for receiving NICK <username and USER <username> <usermode> <hostname> <clientcomment>
-		size_t breakit = 0;
-		while (srv->getSignal() == false)
-		{
-			char buffer[1024];
-			ssize_t bytes_received = recv(socket, buffer, sizeof(buffer), 0);
-			if (bytes_received < 1)
-			{
-				// uncool solution ^^
-				if (++breakit >= 99999999)
-					break;
-				continue;
-			}
-
-			buffer[bytes_received] = '\0';
-			incomingMsg = std::string(buffer);
-			break;
-		}
-		std::cout << magenta << "srvRecv: " << incomingMsg << res;
-
-		// create tokens, split string on each space ' '.
-		// strTokens = Helper::splitString(incomingMsg);
-		// itToken = strTokens.begin();
-		std::__1::vector<std::__1::string> capTokens = Helper::splitString(incomingMsg);
+		// received END of REQ and set LoginProcess to END to receive now the PASS and USER Data to register
+		clients[socket].LoginProcess = "END";
+		return;
+	}
+	if (clients[socket].LoginProcess == "END")
+	{
+		clients[socket].LoginProcess = "DONE";
+		std::vector<std::string> capTokens = Helper::splitString(msg);
 		std::vector<std::string>::iterator itCap = capTokens.begin();
 
-		bool foundPASS = false;
 		// set <password>
 		if (itCap != strTokens.end() && *itCap == "PASS")
 		{
+			// std::cout << "1." << *itCap << std::endl;
 			if (++itCap != strTokens.end() && !itCap->empty())
 				itCap->erase(0, 1);
+			// std::cout << "2." << *itCap << std::endl;
 			if (*itCap == srv->getPassword())
-			{
-				foundPASS = true;
 				clients[socket].Password = *itCap;
-			}
 			++itCap;
 		}
-		if (!foundPASS)
+		// std::cout << "3." << *itCap << std::endl;
+		// std::cout << "4." << clients[socket].Password << ":" << srv->getPassword() << std::endl;
+		if (clients[socket].Password != srv->getPassword())
 		{
 			replyMsg = ERR_PASSWDMISMATCH(clients[socket].Nickname);
 			srv->Send(socket, replyMsg);
@@ -76,13 +59,17 @@ void Commands::cap(int socket, const std::string &msg)
 		if (itCap != capTokens.end() && *itCap == "NICK")
 		{
 			if (++itCap != capTokens.end())
-				nick(socket, "NICK " + *itCap + "\r\n");
+				nick(socket, "NICK " + *itCap + CRLF);
 			++itCap;
 		}
-
+		// if naming wasnt successfull
+		if (clients[socket].Accepted == false)
+		{
+			clients[socket].Connected = false;
+			return;
+		}
 		if (itCap != capTokens.end() && *itCap == "USER")
 		{
-
 			// set <username>
 			if (++itCap != capTokens.end())
 				clients[socket].Username = *itCap;
@@ -112,5 +99,6 @@ void Commands::cap(int socket, const std::string &msg)
 		// send message of the day
 		replyMsg = RPL_MOTD();
 		srv->Send(socket, replyMsg);
+		return;
 	}
 }

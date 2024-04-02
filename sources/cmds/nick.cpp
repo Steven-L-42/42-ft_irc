@@ -24,4 +24,5 @@ void Commands::nick(int socket, const std::string &msg)
 		srv->Send(itClient->first, replyMsg);
 	// overwrite old nickname
 	clients[socket].Nickname = newNickname;
+	clients[socket].Accepted = true;
 }

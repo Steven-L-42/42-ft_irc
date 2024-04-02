@@ -32,7 +32,7 @@ public:
 	void invite(int socket, const std::string &msg);
 	void mode(int socket, const std::string &msg);
 	void part(int socket, const std::string &msg);
-	void ping(int socket, const std::string &msg);
+	void ping(int socket);
 	void privmsg(int socket, const std::string &msg);
 	void quit(int socket, const std::string &msg);
 	void topic(int socket, const std::string &msg);
