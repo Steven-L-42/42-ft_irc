@@ -29,3 +29,6 @@ fclean:		clean
 			@rm -rf $(NAME)
 
 re: 		fclean all
+
+test:		re
+			./$(NAME) 3000 1234

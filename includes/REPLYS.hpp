@@ -60,7 +60,7 @@
 // // send Channelmodes as answer to "MODE #channel"
 // #define RPL_CHANNELMODEIS(nickname, channel, modes) (": 324 " + nickname + " " + channel + " " + modes + CRLF)
 
-// #define RPL_UMODEIS(hostname, channel, mode, user) ":" + hostname + " MODE " + channel + " " + mode + " " + user + CRLF
+#define RPL_UMODEIS(hostname, channel, mode, user) ":" + hostname + " MODE " + channel + " " + mode + " " + user + CRLF
 // #define RPL_CHANGEMODE(hostname, channel, mode, arguments) (":" + hostname + " MODE " + channel + " " + mode + " " + arguments + CRLF)
 ///////
 
