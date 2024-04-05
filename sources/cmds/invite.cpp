@@ -44,6 +44,7 @@ void Commands::invite(int socket, const std::string &msg)
 				if (itClient->second.channels.find(channel) == itClient->second.channels.end())
 				{
 					std::string joinMsg = "JOIN " + channel;
+					channels[channelName].join_invite_only = true;
 					join(itClient->first, joinMsg);
 				}
 				else

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Helper.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slippert <slippert@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jsanger <jsanger@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/08 11:07:03 by slippert          #+#    #+#             */
-/*   Updated: 2024/03/30 12:51:31 by slippert         ###   ########.fr       */
+/*   Updated: 2024/04/04 18:10:06 by jsanger          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,4 +52,22 @@ std::vector<std::string> Helper::splitString(const std::string &str)
 	}
 
 	return tokens;
+}
+
+std::string Helper::trim_whitespace_jan(std::string str)
+{
+	int start = 0;
+	for (; str[start]; start++) {
+		if (str[start] > 32 && str[start] < 126)
+			break ;
+	}
+
+	int end = str.length();
+	for (; end > 0; end--) {
+		if (end - 1 < 0 || (str[end - 1] > 32 && str[end - 1] < 126))
+			break ;
+		
+	}
+	std::string sub = str.substr(start, end);
+	return sub;
 }
