@@ -35,7 +35,6 @@ void Commands::invite(int socket, const std::string &msg)
 	// if client is operator of channel
 	if (clients[socket].channels[channel].isOp == true)
 	{
-
 		// looking for the user
 		for (itClient = clients.begin(); itClient != clients.end(); itClient++)
 		{

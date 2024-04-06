@@ -30,12 +30,12 @@ public:
 	void join(int socket, const std::string &msg);
 	void kick(int socket, const std::string &msg);
 	void invite(int socket, const std::string &msg);
-	// Jan tested something function for mode 
-	bool												test_jan(std::string msg);
-	bool												topic(std::string msg);
-	bool												invite_only(std::string msg);
-	bool												operator_priv(std::string msg, int socket);
-	bool												set_user_limit(std::string msg);
+	// Jan tested something function for mode
+	bool i_invite(std::string msg);
+	bool t_topic(std::string msg);
+	bool k_password(std::string msg, std::string password);
+	bool o_operator(int socket, std::string msg, std::string param);
+	bool l_userLimit(int socket, std::string msg, std::string param);
 	void mode(int socket, const std::string &msg);
 	void part(int socket, const std::string &msg);
 	void ping(int socket);

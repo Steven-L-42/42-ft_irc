@@ -57,8 +57,8 @@
 // // Send Channel Creationtime
 // #define RPL_CREATIONTIME(nickname, channel, creationtime) (": 329 " + nickname + " " + channel + " " + creationtime + CRLF)
 
-// // send Channelmodes as answer to "MODE #channel"
-// #define RPL_CHANNELMODEIS(nickname, channel, modes) (": 324 " + nickname + " " + channel + " " + modes + CRLF)
+// send and set Channelmodes as answer to "/mode <channel> <mode>"
+#define RPL_CHANNELMODEIS(nickname, channel, modes) (": 324 " + nickname + " " + channel + " " + modes + CRLF)
 
 #define RPL_UMODEIS(hostname, channel, mode, user) ":" + hostname + " MODE " + channel + " " + mode + " " + user + CRLF
 // #define RPL_CHANGEMODE(hostname, channel, mode, arguments) (":" + hostname + " MODE " + channel + " " + mode + " " + arguments + CRLF)
@@ -93,11 +93,21 @@
 // if invited user is already on channel
 #define ERR_USERONCHANNEL(nickname, channel) (": 443 ERR_USERONCHANNEL " + nickname + " " + channel + CRLF)
 
+// if user send a unknownmode which we dont handle
+#define ERR_UNKNOWNMODE(nickname, channel, mode) ": 472 " + nickname + " " + channel + " :'" + mode + "' is a unknown channel mode" + CRLF
+
+// if channel is full
+#define ERR_CHANNELISFULL(nickname, channel) ": 471 " + nickname + " " + channel + " :Cannot join channel (+l)" + CRLF
+
+// if channel is invite only
+#define ERR_INVITEONLYCHAN(nickname, channel) ": 473 " + nickname + " " + channel + " :Cannot join channel (+i)" + CRLF
+
+// #define ERR_UNKNOWNMODE(nickname, channel, mode) ": 472 " + mode + " " + nickname + " :is unknown mode char to me for " + channel + CRLF
+
 /////// currently not used
 // #define ERR_NEEDMODEPARM(channel, mode) (": 696 " + channel + " * You must specify a parameter for the key mode. " + mode + CRLF)
 // #define ERR_INVALIDMODEPARM(channel, mode) ": 696 " + channel + " Invalid mode parameter. " + mode + CRLF
 // #define ERR_KEYSET(channel) ": 467 " + channel + " Channel key already set. " + CRLF
-// #define ERR_UNKNOWNMODE(nickname, channel, mode) ": 472 " + nickname + " #" + channel + " " + mode + " :is not a recognised channel mode" + CRLF
 // #define ERR_ALREADYREGISTERED(nickname) (": 462 " + nickname + " :You may not reregister !" + CRLF)
 // #define ERR_NONICKNAME(nickname) (": 431 " + nickname + " :No nickname given" + CRLF)
 // #define ERR_ERRONEUSNICK(nickname) (": 432 " + nickname + " :Erroneus nickname" + CRLF)
