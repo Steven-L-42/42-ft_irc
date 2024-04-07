@@ -9,12 +9,14 @@ class Channel
 private:
 public:
 	std::string	Password;
-	size_t			max_users;
-	size_t			user_count;
+	int			max_users;
+	int			user_count;
 	bool		has_password;
-	std::string	Modes;
 	std::string	Topic;
-	bool		invite_only;
 	bool		join_invite_only;
+	std::string	Modes;
+	std::string	Modes_Params;
+	bool		user_limit;
+	bool		invite_only;
 	bool		restricted_topic;
 };

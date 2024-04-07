@@ -36,6 +36,8 @@ public:
 	bool k_password(std::string msg, std::string password);
 	bool o_operator(int socket, std::string msg, std::string param);
 	bool l_userLimit(int socket, std::string msg, std::string param);
+	bool removeOrAdd_Mode(std::string mode);
+
 	void mode(int socket, const std::string &msg);
 	void part(int socket, const std::string &msg);
 	void ping(int socket);

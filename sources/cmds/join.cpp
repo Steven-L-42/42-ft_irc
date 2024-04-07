@@ -25,7 +25,7 @@ void Commands::join(int socket, const std::string &msg)
 		newChannel.max_users = MAX_USERS;
 		if (tok_Passsword == "")
 			newChannel.has_password = false;
-		newChannel.Modes = "";
+		newChannel.Modes = "+";
 		newChannel.Topic = "No Topic";
 		channels[tok_Channel] = newChannel;
 		isNewChannel = true;

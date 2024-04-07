@@ -10,14 +10,14 @@ bool Commands::k_password(std::string mode, std::string password)
 		{
 			channels[channelName].has_password = false;
 			channels[channelName].Password = "";
-			return true;
 		}
 		else
 		{
 			channels[channelName].Password = password;
 			channels[channelName].has_password = true;
-			return true;
 		}
+		removeOrAdd_Mode(mode);
+		return true;
 	}
 	return false;
 }
@@ -29,15 +29,11 @@ bool Commands::t_topic(std::string mode)
 	if (mode == "+t" || mode == "-t")
 	{
 		if (mode == "-t")
-		{
 			channels[channelName].restricted_topic = false;
-			return true;
-		}
 		else
-		{
 			channels[channelName].restricted_topic = true;
-			return true;
-		}
+		removeOrAdd_Mode(mode);
+		return true;
 	}
 	return false;
 }
@@ -50,6 +46,7 @@ bool Commands::i_invite(std::string mode)
 			channels[channelName].invite_only = true;
 		else
 			channels[channelName].invite_only = false;
+		removeOrAdd_Mode(mode);
 		return true;
 	}
 	return false;
@@ -69,6 +66,7 @@ bool Commands::o_operator(int socket, std::string mode, std::string nickname)
 					itClient->second.channels[channelName].isOp = true;
 				else
 					itClient->second.channels[channelName].isOp = false;
+				removeOrAdd_Mode(mode);
 				return true;
 			}
 		}
@@ -81,6 +79,7 @@ bool Commands::o_operator(int socket, std::string mode, std::string nickname)
 	return false;
 }
 
+
 bool Commands::l_userLimit(int socket, std::string mode, std::string param)
 {
 
@@ -92,30 +91,62 @@ bool Commands::l_userLimit(int socket, std::string mode, std::string param)
 			{
 				replyMsg = ERR_NEEDMOREPARAMS(clients[socket].Nickname);
 				srv->Send(socket, replyMsg);
-				return;
+				return false;
 			}
 
 			std::istringstream iss(param);
 			size_t limit;
 
 			if (!(iss >> limit))
-				return std::cout << ("Ungültige Zeichenfolge: " + param) << std::endl, false;
+				limit = 0;
 
-			std::string remaining;
-			if (iss >> remaining)
-				return std::cout << ("Ungültige Zeichenfolge: " + param) << std::endl, false;
-
-			if (limit > std::numeric_limits<size_t>::max())
-				return std::cout << ("Zu große Zahl: " + param) << std::endl, false;
+			if (limit > std::numeric_limits<int>::max() || limit < 0)
+				limit = 0;
 
 			channels[channelName].max_users = limit;
+			channels[channelName].user_limit = true;
 		}
 		else
-			channels[channelName].max_users = MAX_USERS;
+		{
+			channels[channelName].user_limit = false;
+			channels[channelName].max_users = std::numeric_limits<int>::max();
+		}
+		removeOrAdd_Mode(mode);
 		return true;
 	}
 	return false;
 }
+
+bool Commands::removeOrAdd_Mode(std::string mode)
+{
+	if (mode[0] == '+')
+	{
+		mode.erase(0, 1);
+		std::size_t pos = channels[channelName].Modes.find(mode);
+		if (pos == std::string::npos)
+			channels[channelName].Modes += mode;
+	}
+	else if (mode[0] == '-')
+	{
+		mode.erase(0, 1);
+		std::size_t pos = channels[channelName].Modes.find(mode);
+		if (pos != std::string::npos)
+			channels[channelName].Modes.erase(pos, pos + 1);
+	}
+
+	channels[channelName].Modes_Params = "";
+	std::string::iterator itModes = channels[channelName].Modes.begin();
+	for (; itModes != channels[channelName].Modes.end(); itModes++)
+	{
+		if (*itModes == 'l')
+			channels[channelName].Modes_Params += Helper::itoa(channels[channelName].max_users) + " ";
+		if (*itModes == 'k')
+			channels[channelName].Modes_Params += channels[channelName].Password + " ";
+	}
+
+	return true;
+}
+
 // MODE (Operator Command) - Change the channel’s mode:
 // Done ! i: Set/remove Invite-only channel
 // Done ! t: Set/remove the restrictions of the TOPIC command to channel operators
@@ -126,7 +157,7 @@ void Commands::mode(int socket, const std::string &msg)
 {
 	strTokens = Helper::splitString(msg);
 
-	if (strTokens.size() < 3)
+	if (strTokens.size() < 2)
 	{
 		replyMsg = ERR_NEEDMOREPARAMS(clients[socket].Nickname);
 		srv->Send(socket, replyMsg);
@@ -151,6 +182,20 @@ void Commands::mode(int socket, const std::string &msg)
 	if (channelName[0] != '#')
 		channelName = "#" + channelName;
 
+	if (mode[0] != '+' && mode[0] != '-')
+		mode = "+" + mode;
+
+	// send current set modes to client
+	if (strTokens.size() == 2)
+	{
+		if (channels[channelName].Modes != "+")
+		{
+			replyMsg = RPL_CHANNELMODEIS(clients[socket].Nickname, channelName, channels[channelName].Modes + " " + channels[channelName].Modes_Params);
+			srv->Send(socket, replyMsg);
+		}
+		return;
+	}
+
 	// looking for the channel
 	if (channels.find(channelName) == channels.end())
 	{
@@ -159,6 +204,7 @@ void Commands::mode(int socket, const std::string &msg)
 		return;
 	}
 
+	// check if client is op
 	if (clients[socket].channels[channelName].isOp == false)
 	{
 		replyMsg = ERR_CHANOPRIVSNEEDED(clients[socket].Nickname, channelName);
