@@ -20,12 +20,12 @@ void Commands::join(int socket, const std::string &msg)
 		newChannel.has_password = true;
 		newChannel.invite_only = false;
 		newChannel.join_invite_only = false;
-		newChannel.restricted_topic = false;
+		newChannel.restricted_topic = true;
 		newChannel.user_count = 1;
 		newChannel.max_users = MAX_USERS;
 		if (tok_Passsword == "")
 			newChannel.has_password = false;
-		newChannel.Modes = "+";
+		newChannel.Modes = "+t";
 		newChannel.Topic = "No Topic";
 		channels[tok_Channel] = newChannel;
 		isNewChannel = true;

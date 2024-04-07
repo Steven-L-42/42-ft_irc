@@ -1,6 +1,6 @@
 #include "../../includes/Commands.hpp"
 
-// display or change a topic (only operator) (/topic or /topic <new Topic>)
+// display or change a topic (operator and user if not restricted) (/topic or /topic <#channel> <new Topic>)
 void Commands::topic(int socket, const std::string &msg)
 {
 	strTokens = Helper::splitString(msg);
@@ -11,7 +11,6 @@ void Commands::topic(int socket, const std::string &msg)
 	// Do nothing if # ist not in front of channelName (compared to official Server)
 	if (channelName[0] != '#')
 		return;
-
 	// Send current channel topic to client
 	if (strTokens.size() == 2)
 	{
@@ -21,7 +20,7 @@ void Commands::topic(int socket, const std::string &msg)
 		return;
 	}
 	// if more then 2 && client is Operator then change channel topic
-	if (clients[socket].channels[channelName].isOp == true)
+	if (channels[channelName].restricted_topic == false || clients[socket].channels[channelName].isOp == true)
 	{
 		itToken++;
 		std::string message = "";

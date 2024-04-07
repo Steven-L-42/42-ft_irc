@@ -21,6 +21,7 @@ private:
 	std::vector<std::string> kickChannels;
 	std::vector<std::string>::iterator itKickChannel;
 	std::string channelName;
+	bool had_Error;
 
 public:
 	Commands(Server *_srv);
@@ -33,7 +34,7 @@ public:
 	// Jan tested something function for mode
 	bool i_invite(std::string msg);
 	bool t_topic(std::string msg);
-	bool k_password(std::string msg, std::string password);
+	bool k_password(int socket, std::string msg, std::string password);
 	bool o_operator(int socket, std::string msg, std::string param);
 	bool l_userLimit(int socket, std::string msg, std::string param);
 	bool removeOrAdd_Mode(std::string mode);

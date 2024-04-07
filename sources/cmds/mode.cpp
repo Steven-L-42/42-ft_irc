@@ -2,12 +2,19 @@
 #include "../../includes/Helper.hpp"
 #include "../../includes/Channel.hpp"
 
-bool Commands::k_password(std::string mode, std::string password)
+bool Commands::k_password(int socket, std::string mode, std::string password)
 {
 	if (mode == "+k" || mode == "-k")
 	{
 		if (mode == "-k")
 		{
+			if (channels[channelName].Password != password)
+			{
+				had_Error = true;
+				replyMsg = ERR_PASSWDMISMATCH(clients[socket].Nickname);
+				srv->Send(socket, replyMsg);
+				return true;
+			}
 			channels[channelName].has_password = false;
 			channels[channelName].Password = "";
 		}
@@ -22,7 +29,6 @@ bool Commands::k_password(std::string mode, std::string password)
 	return false;
 }
 
-// We need to implement a restriction to operators to use /topic command if +t is set.
 bool Commands::t_topic(std::string mode)
 {
 
@@ -72,13 +78,14 @@ bool Commands::o_operator(int socket, std::string mode, std::string nickname)
 		}
 		if (itClient == clients.end())
 		{
+			had_Error = true;
 			replyMsg = ERR_NOSUCHNICK(nickname, clients[socket].Nickname);
 			srv->Send(socket, replyMsg);
+			return true;
 		}
 	}
 	return false;
 }
-
 
 bool Commands::l_userLimit(int socket, std::string mode, std::string param)
 {
@@ -89,13 +96,14 @@ bool Commands::l_userLimit(int socket, std::string mode, std::string param)
 		{
 			if (param == "")
 			{
+				had_Error = true;
 				replyMsg = ERR_NEEDMOREPARAMS(clients[socket].Nickname);
 				srv->Send(socket, replyMsg);
-				return false;
+				return true;
 			}
 
 			std::istringstream iss(param);
-			size_t limit;
+			int limit;
 
 			if (!(iss >> limit))
 				limit = 0;
@@ -168,6 +176,7 @@ void Commands::mode(int socket, const std::string &msg)
 	channelName = *itToken++;
 	std::string mode = *itToken++;
 	std::string param = "";
+	had_Error = false;
 
 	if (strTokens.size() > 3)
 	{
@@ -212,8 +221,10 @@ void Commands::mode(int socket, const std::string &msg)
 		return;
 	}
 
-	if (o_operator(socket, mode, param) == true || k_password(mode, param) == true || l_userLimit(socket, mode, param))
+	if (o_operator(socket, mode, param) == true || k_password(socket, mode, param) == true || l_userLimit(socket, mode, param))
 	{
+		if (had_Error == true)
+			return;
 		replyMsg = RPL_CHANNELMODEIS(clients[socket].Nickname, channelName, mode + (param != "" ? " " + param : ""));
 		srv->Send(socket, replyMsg);
 		return;
