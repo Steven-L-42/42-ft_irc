@@ -73,9 +73,10 @@ void Commands::join(int socket, const std::string &msg)
 		if (itClient->second.channels[tok_Channel].isJoined == true)
 			srv->Send(itClient->first, replyMsg);
 	}
-
-	if (isNewChannel)
+	// Besides first user also check if its the bot BITCHBOT
+	if (isNewChannel || clients[socket].Nickname == "bitchbot")
 	{
+		std::cout << "OP IS BEING MADE" << std::endl;
 		clients[socket].channels[tok_Channel].isOp = true;
 		replyMsg = RPL_UMODEIS(clients[socket].Hostname, tok_Channel, "+o", clients[socket].Nickname);
 		srv->Send(socket, replyMsg);
