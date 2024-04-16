@@ -8,6 +8,8 @@ void Commands::part(int socket, const std::string &msg)
 	itToken++;
 	channelName = *itToken++;
 
+	if (channelName[0] != '#')
+		channelName = "#" + channelName;
 	std::string reason = "";
 	if (itToken != strTokens.end())
 	{
@@ -33,4 +35,6 @@ void Commands::part(int socket, const std::string &msg)
 	// remove channel from user
 	if (clients[socket].channels[channelName].isJoined == true)
 		clients[socket].channels.erase(clients[socket].channels.find(channelName));
+	if (channels[channelName].user_count > 0)
+		channels[channelName].user_count--;
 }

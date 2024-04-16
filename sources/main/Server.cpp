@@ -171,6 +171,20 @@ void Server::Remv()
 		else
 			++it;
 	}
+
+	std::map<std::string, Channel>::iterator channel_it = channels.begin();
+
+	while (channel_it != channels.end())
+	{
+		if (channel_it->second.user_count == 0)
+		{
+			std::cout << "Test\n";
+			channels.erase(channel_it);
+			channel_it = channels.begin();
+		}
+		else
+			++channel_it;
+	}
 }
 
 // receives incoming messages

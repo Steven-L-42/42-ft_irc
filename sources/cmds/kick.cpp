@@ -63,6 +63,8 @@ void Commands::kick(int socket, const std::string &msg)
 			}
 		}
 		clients[itKickUser->first].channels.erase(clients[itKickUser->first].channels.find(channel));
+		if (channels[channel].user_count > 0)
+			channels[channel].user_count--;
 	}
 	else
 	{

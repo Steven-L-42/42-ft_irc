@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sstream>
+#include <limits>
 #include <poll.h>
 #include <vector>
 #include <stack>

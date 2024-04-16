@@ -194,6 +194,14 @@ void Commands::mode(int socket, const std::string &msg)
 	if (mode[0] != '+' && mode[0] != '-')
 		mode = "+" + mode;
 
+	// looking for the channel
+	if (channels.find(channelName) == channels.end())
+	{
+		replyMsg = ERR_NOSUCHCHANNEL(channelName, clients[socket].Nickname);
+		srv->Send(socket, replyMsg);
+		return;
+	}
+	
 	// send current set modes to client
 	if (strTokens.size() == 2)
 	{
@@ -205,13 +213,6 @@ void Commands::mode(int socket, const std::string &msg)
 		return;
 	}
 
-	// looking for the channel
-	if (channels.find(channelName) == channels.end())
-	{
-		replyMsg = ERR_NOSUCHCHANNEL(channelName, clients[socket].Nickname);
-		srv->Send(socket, replyMsg);
-		return;
-	}
 
 	// check if client is op
 	if (clients[socket].channels[channelName].isOp == false)

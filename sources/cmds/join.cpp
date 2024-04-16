@@ -32,6 +32,17 @@ void Commands::join(int socket, const std::string &msg)
 	}
 	else
 	{
+		// std::cout << clients[socket].Nickname << std::endl;
+		std::map<int, Client>::iterator it = clients.begin();
+		std::map<int, Client>::iterator ite = clients.end();
+		for (; it != ite; it++)
+		{
+			if (it->second.Nickname == clients[socket].Nickname) {
+				replyMsg = ERR_USERONCHANNEL(clients[socket].Nickname, channelName);
+				srv->Send(socket, replyMsg);
+				return ;
+			}
+		}
 		if (channels[tok_Channel].join_invite_only == false)
 		{
 			if (channels[tok_Channel].invite_only == true)
