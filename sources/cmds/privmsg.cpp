@@ -18,8 +18,21 @@ void Commands::privmsg(int socket, const std::string &msg)
 
 	replyMsg = RPL_MESSAGE(clients[socket].Nickname, clients[socket].Username, clients[socket].Hostname, NickOrChannel, message);
 
+
+	// if i private mail to other
+	if (NickOrChannel[0] != '#')
+	{
+		std::map<int, Client>::iterator itKickUser;
+		// search for user in clients
+		for (itKickUser = clients.begin(); itKickUser != clients.end(); itKickUser++)
+		{
+			if (itKickUser->second.Nickname == NickOrChannel)
+				break;
+		}
+		srv->Send(itKickUser->first, replyMsg);
+	}
 	// if i private mail myself
-	if (clients[socket].Nickname == NickOrChannel)
+	else if (clients[socket].Nickname == NickOrChannel)
 		srv->Send(socket, replyMsg);
 	else
 	{

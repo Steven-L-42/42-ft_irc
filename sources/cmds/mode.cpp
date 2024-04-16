@@ -226,7 +226,17 @@ void Commands::mode(int socket, const std::string &msg)
 		if (had_Error == true)
 			return;
 		replyMsg = RPL_CHANNELMODEIS(clients[socket].Nickname, channelName, mode + (param != "" ? " " + param : ""));
-		srv->Send(socket, replyMsg);
+		std::map<int, Client>::iterator itClientstest;
+		for (itClientstest = clients.begin(); itClientstest != clients.end(); itClientstest++)
+		{
+			// std::cout << itClientstest->first << std::endl;
+			if (itClientstest->second.channels.find(channelName) != itClientstest->second.channels.end()) {
+				// std::cout << "BITCH" << std::endl;
+				srv->Send(itClientstest->first, replyMsg);
+			}
+		}
+		
+		// srv->Send(socket, replyMsg);
 		return;
 	}
 
