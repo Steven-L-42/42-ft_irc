@@ -8,9 +8,8 @@ void Commands::topic(int socket, const std::string &msg)
 	itToken++;
 	channelName = *itToken;
 
-	// Do nothing if # ist not in front of channelName (compared to official Server)
 	if (channelName[0] != '#')
-		return;
+		channelName = "#" + channelName;
 	// Send current channel topic to client
 	if (strTokens.size() == 2)
 	{
