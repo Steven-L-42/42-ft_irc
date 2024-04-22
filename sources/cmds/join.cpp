@@ -32,17 +32,13 @@ void Commands::join(int socket, const std::string &msg)
 	}
 	else
 	{
-		// std::cout << clients[socket].Nickname << std::endl;
-		std::map<int, Client>::iterator it = clients.begin();
-		std::map<int, Client>::iterator ite = clients.end();
-		for (; it != ite; it++)
+		if (clients[socket].channels[tok_Channel].isJoined == true)
 		{
-			if (it->second.Nickname == clients[socket].Nickname) {
-				replyMsg = ERR_USERONCHANNEL(clients[socket].Nickname, channelName);
-				srv->Send(socket, replyMsg);
-				return ;
-			}
+			replyMsg = ERR_USERONCHANNEL(clients[socket].Nickname, channelName);
+			srv->Send(socket, replyMsg);
+			return;
 		}
+
 		if (channels[tok_Channel].join_invite_only == false)
 		{
 			if (channels[tok_Channel].invite_only == true)
@@ -53,8 +49,6 @@ void Commands::join(int socket, const std::string &msg)
 			}
 		}
 
-		channels[tok_Channel].join_invite_only = false;
-
 		if (channels[tok_Channel].user_count >= channels[tok_Channel].max_users)
 		{
 			replyMsg = ERR_CHANNELISFULL(clients[socket].Nickname, tok_Channel);
@@ -64,13 +58,15 @@ void Commands::join(int socket, const std::string &msg)
 
 		std::string channel_Password_trimmed = Helper::trim_whitespace_jan(channels[tok_Channel].Password);
 		std::string tok_Passsword_trimmed = Helper::trim_whitespace_jan(tok_Passsword);
-		if (channel_Password_trimmed != tok_Passsword_trimmed)
+		if (channel_Password_trimmed != tok_Passsword_trimmed && channels[tok_Channel].join_invite_only == false)
 		{
+			clients[socket].channels[tok_Channel].isJoined = false;
 			replyMsg = ERR_PASSWDMISMATCH(clients[socket].Nickname);
 			srv->Send(socket, replyMsg);
 			return;
 		}
 		channels[tok_Channel].user_count++;
+		channels[tok_Channel].join_invite_only = false;
 	}
 
 	// set REPLY MSG and send it back to clientSocket
@@ -90,5 +86,7 @@ void Commands::join(int socket, const std::string &msg)
 		clients[socket].channels[tok_Channel].isOp = true;
 		replyMsg = RPL_UMODEIS(clients[socket].Hostname, tok_Channel, "+o", clients[socket].Nickname);
 		srv->Send(socket, replyMsg);
+		if (channels[tok_Channel].Password != "")
+			mode(socket, "MODE " + tok_Channel + " +k " + tok_Passsword + "\r\n");
 	}
 }

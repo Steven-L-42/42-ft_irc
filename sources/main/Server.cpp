@@ -178,7 +178,6 @@ void Server::Remv()
 	{
 		if (channel_it->second.user_count == 0)
 		{
-			std::cout << "Test\n";
 			channels.erase(channel_it);
 			channel_it = channels.begin();
 		}

@@ -201,7 +201,7 @@ void Commands::mode(int socket, const std::string &msg)
 		srv->Send(socket, replyMsg);
 		return;
 	}
-	
+
 	// send current set modes to client
 	if (strTokens.size() == 2)
 	{
@@ -212,7 +212,6 @@ void Commands::mode(int socket, const std::string &msg)
 		}
 		return;
 	}
-
 
 	// check if client is op
 	if (clients[socket].channels[channelName].isOp == false)
@@ -231,12 +230,13 @@ void Commands::mode(int socket, const std::string &msg)
 		for (itClientstest = clients.begin(); itClientstest != clients.end(); itClientstest++)
 		{
 			// std::cout << itClientstest->first << std::endl;
-			if (itClientstest->second.channels.find(channelName) != itClientstest->second.channels.end()) {
+			if (itClientstest->second.channels.find(channelName) != itClientstest->second.channels.end())
+			{
 				// std::cout << "BITCH" << std::endl;
 				srv->Send(itClientstest->first, replyMsg);
 			}
 		}
-		
+
 		// srv->Send(socket, replyMsg);
 		return;
 	}
