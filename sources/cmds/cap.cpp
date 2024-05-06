@@ -1,5 +1,24 @@
 #include "../../includes/Commands.hpp"
 
+std::vector<std::string> NetCat(std::string msg)
+{
+	std::vector<std::string> output;
+	std::string::iterator it_msg = msg.begin();
+	std::string temp = "";
+	for (; it_msg != msg.end(); it_msg++)
+	{
+		if (*it_msg == '|' || *it_msg == ' ')
+		{
+			output.push_back(temp);
+			temp = "";
+			continue;
+		}
+		temp += *it_msg;
+	}
+
+	return output;
+}
+
 // CAP is the login procedure, it is the first thing that
 // the Server receives after getting a incoming connection request
 void Commands::cap(int socket, const std::string &msg)
@@ -7,7 +26,7 @@ void Commands::cap(int socket, const std::string &msg)
 	strTokens = Helper::splitString(msg);
 	itToken = strTokens.begin();
 	itToken++;
-
+	std::cout << msg << std::endl;
 	if (*itToken == "LS")
 	{
 		replyMsg = "CAP * LS :multi-prefix sasl\r\n";
@@ -32,6 +51,8 @@ void Commands::cap(int socket, const std::string &msg)
 	{
 		clients[socket].LoginProcess = "DONE";
 		std::vector<std::string> capTokens = Helper::splitString(msg);
+		if (capTokens.size() < 9)
+			capTokens = NetCat(msg);
 		std::vector<std::string>::iterator itCap = capTokens.begin();
 
 		// set <password>
