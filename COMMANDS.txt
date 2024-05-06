@@ -8,7 +8,7 @@ JOIN #test
 MODE #test
 WHO #test
 MODE #test b
-MODE test
+MODE #test
 
 
 : stevenTest!Steven@irc.unknown.net PART test :Reason: Mein Grund

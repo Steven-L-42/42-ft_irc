@@ -9,6 +9,8 @@ void Commands::join(int socket, const std::string &msg)
 	itToken = strTokens.begin();
 	itToken++;
 	std::string tok_Channel = *itToken;
+	if (tok_Channel[0] != '#')
+		tok_Channel = "#" + tok_Channel;
 	std::string tok_Passsword = "";
 	if (++itToken != strTokens.end())
 		tok_Passsword = *itToken;
