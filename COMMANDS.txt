@@ -1,0 +1,4 @@
+CAP LS
+CAP REQ :multi-prefix sasl
+CAP END
+PASS :1234|NICK slippert|USER Steven 0 irc.unknown.net :1,8Steven Lippert
