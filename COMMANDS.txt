@@ -1,4 +1,18 @@
 CAP LS
 CAP REQ :multi-prefix sasl
 CAP END
-PASS :1234|NICK slippert|USER Steven 0 irc.unknown.net :1,8Steven Lippert
+PASS :1234|NICK stevenTest|USER Steven 0 irc.unknown.net :1,8Steven Lippert
+
+
+JOIN #test
+MODE #test
+WHO #test
+MODE #test b
+MODE test
+
+
+: stevenTest!Steven@irc.unknown.net PART test :Reason: Mein Grund
+
+:stevenTest!Steven@irc.unknown.net PART test :Reason: No boundaries on the net!
+
+PART #test :No boundaries on the net!

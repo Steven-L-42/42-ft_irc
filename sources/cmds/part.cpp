@@ -33,7 +33,7 @@ void Commands::part(int socket, const std::string &msg)
 			srv->Send(itClient->first, replyMsg);
 	}
 	// remove channel from user
-	if (clients[socket].channels[channelName].isJoined == true)
+	if (clients[socket].channels.find(channelName) != clients[socket].channels.end())
 		clients[socket].channels.erase(clients[socket].channels.find(channelName));
 	if (channels[channelName].user_count > 0)
 		channels[channelName].user_count--;

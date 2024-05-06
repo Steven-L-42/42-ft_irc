@@ -26,7 +26,7 @@ void Commands::cap(int socket, const std::string &msg)
 	strTokens = Helper::splitString(msg);
 	itToken = strTokens.begin();
 	itToken++;
-	std::cout << msg << std::endl;
+
 	if (*itToken == "LS")
 	{
 		replyMsg = "CAP * LS :multi-prefix sasl\r\n";
