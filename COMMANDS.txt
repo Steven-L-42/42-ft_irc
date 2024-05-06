@@ -1,7 +1,7 @@
 CAP LS
 CAP REQ :multi-prefix sasl
 CAP END
-PASS :1234|NICK stevenTest|USER Steven 0 irc.unknown.net :1,8Steven Lippert
+PASS :1234|NICK steven|USER Steven 0 irc.unknown.net :1,8Steven Lippert
 
 
 JOIN #test
@@ -16,3 +16,12 @@ MODE #test
 :stevenTest!Steven@irc.unknown.net PART test :Reason: No boundaries on the net!
 
 PART #test :No boundaries on the net!
+
+
+Control C wurde gefixed
+Control Z // Setzt Terminal in den Hintergrund aber nc lauft weiter
+fg // setzt Terminal wieder in den vordergrund
+
+
+Probleme:	mit Nc kann man noch Alles lesen aus allen channels und auch in alle reinschreben
+			Control D (EOF macht bugs, soll aber Nachicht nach und nach senden(Kleine Pakete))
