@@ -13,3 +13,4 @@ MODE #test
 
 PART #test :No boundaries on the net!
 
+PRIVMSG #Jano :Hello World I am SLIPPERY
