@@ -16,6 +16,7 @@ void Commands::privmsg(int socket, const std::string &msg)
 			message += " ";
 	}
 
+
 	replyMsg = RPL_MESSAGE(clients[socket].Nickname, clients[socket].Username, clients[socket].Hostname, NickOrChannel, message);
 
 
@@ -37,9 +38,11 @@ void Commands::privmsg(int socket, const std::string &msg)
 	else
 	{
 		// send message to all in channel, but not myself
+		if (clients[socket].channels.find(NickOrChannel) == clients[socket].channels.end())
+			return ;
 		for (itClient = clients.begin(); itClient != clients.end(); itClient++)
 		{
-			if (itClient->first != socket)
+			if (itClient->first != socket && itClient->second.channels.find(NickOrChannel) != itClient->second.channels.end())
 				srv->Send(itClient->first, replyMsg);
 		}
 	}

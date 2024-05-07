@@ -208,8 +208,9 @@ void Server::Recv()
 		}
 
 		buffer[bytes_received] = '\0';
-		it->second.recvMsg = std::string(buffer);
-		std::cout << magenta << "srvRecv: " << it->second.recvMsg << res;
+		it->second.recvMsg += std::string(buffer);
+		if (it->second.recvMsg[it->second.recvMsg.size() - 1] == '\n')
+			std::cout << magenta << "srvRecv: " << it->second.recvMsg << res;
 	}
 }
 
@@ -223,6 +224,8 @@ void Server::Check()
 			continue;
 
 		int socket = it->first;
+		if (it->second.recvMsg[it->second.recvMsg.size() - 1] != '\n')
+			continue ;
 		std::string msg = it->second.recvMsg;
 		it->second.recvMsg = "";
 

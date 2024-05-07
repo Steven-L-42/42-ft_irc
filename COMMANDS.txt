@@ -11,23 +11,5 @@ MODE #test b
 MODE #test
 
 
-: stevenTest!Steven@irc.unknown.net PART test :Reason: Mein Grund
-
-:stevenTest!Steven@irc.unknown.net PART test :Reason: No boundaries on the net!
-
 PART #test :No boundaries on the net!
 
-
-Control C wurde gefixed
-Control Z // Setzt Terminal in den Hintergrund aber nc lauft weiter
-fg // setzt Terminal wieder in den vordergrund
-
-
-Probleme:	mit Nc kann man noch Alles lesen aus allen channels und auch in alle reinschreben
-
-			Control D (EOF macht bugs, soll aber Nachicht nach und nach senden(Kleine Pakete))
-
----> JOIN #Test 				wird zu: srvRecv: Join Test
----> JO(Control D)IN #Test 		wird zu: srvRecv: JOsrvRecv: IN #test
-
-Wenn Control D ohne Zeichen davor  -> EOF wie Control C Terminal Bricht ab aber muss auch so glaub
