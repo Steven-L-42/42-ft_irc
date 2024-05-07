@@ -1,5 +1,4 @@
 #include "../../includes/Server.hpp"
-#include <errno.h>
 
 bool Server::Signal = false;
 
@@ -83,9 +82,7 @@ void Server::srvInit()
 	if ((listen(_socket, _maxConnections)) == -1)
 		throw(std::runtime_error("Error: listen"));
 }
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
+
 void Server::srvLstn()
 {
 	std::cout << blue << "\n~ Server is running | Port: " << _port << " | Password: " << _password << " ~ \n"

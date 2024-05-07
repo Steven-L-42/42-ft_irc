@@ -4,7 +4,7 @@ NETCAT ~ Manual Commands
 CAP LS
 CAP REQ :multi-prefix sasl
 CAP END
-PASS :1234|NICK Evali|USER Evaluator 0 irc.unknown.net :1,8Serious Evali
+PASS :1234|NICK Evalitest|USER Evaluator 0 irc.unknown.net :1,8Serious Evali
 
 #Join Channel and request current users
 JOIN #test
@@ -26,9 +26,7 @@ TOPIC #test :This Topic is Nice
 MODE #test -o Evali
 // adds password to channel
 MODE #test +k 1234
-
 // set topic to changeable for all
 MODE #test -t
-
-// set userlimit for channel
+// set userlimit to 5 for channel
 MODE #test +l 5
