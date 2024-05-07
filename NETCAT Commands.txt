@@ -1,0 +1,34 @@
+NETCAT ~ Manual Commands
+
+#Login Process
+CAP LS
+CAP REQ :multi-prefix sasl
+CAP END
+PASS :1234|NICK Evali|USER Evaluator 0 irc.unknown.net :1,8Serious Evali
+
+#Join Channel and request current users
+JOIN #test
+WHO #test
+
+#Leave Channel
+PART #test :Iam tired :{
+
+#Send Message
+PRIVMSG #test :Hello World
+PRIVMSG Evali :Hello Dude
+
+#Change Topic
+TOPIC #test
+TOPIC #test :This Topic is Nice
+
+#Modes
+// Remove operator from Evali
+MODE #test -o Evali
+// adds password to channel
+MODE #test +k 1234
+
+// set topic to changeable for all
+MODE #test -t
+
+// set userlimit for channel
+MODE #test +l 5

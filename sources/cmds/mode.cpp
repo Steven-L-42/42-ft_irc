@@ -105,11 +105,13 @@ bool Commands::l_userLimit(int socket, std::string mode, std::string param)
 			std::istringstream iss(param);
 			int limit;
 
-			if (!(iss >> limit))
-				limit = 0;
-
-			if (limit > std::numeric_limits<int>::max() || limit < 0)
-				limit = 0;
+			if (!(iss >> limit) || limit > std::numeric_limits<int>::max() || limit <= 0)
+			{
+				channels[channelName].user_limit = false;
+				channels[channelName].max_users = std::numeric_limits<int>::max();
+				removeOrAdd_Mode("-l");
+				return true;
+			}
 
 			channels[channelName].max_users = limit;
 			channels[channelName].user_limit = true;

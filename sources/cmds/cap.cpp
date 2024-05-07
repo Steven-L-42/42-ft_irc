@@ -120,6 +120,7 @@ void Commands::cap(int socket, const std::string &msg)
 		// send message of the day
 		replyMsg = RPL_MOTD();
 		srv->Send(socket, replyMsg);
+		clients[socket].Registred = true;
 		return;
 	}
 }

@@ -13,6 +13,7 @@ Server::~Server()
 	Server::Signal = true;
 	Remv();
 	close(_socket);
+	delete (cmds);
 }
 
 std::map<std::string, Channel> &Server::getChannels()
@@ -145,6 +146,7 @@ void Server::srvLstn()
 					newClient.Password = "";
 					newClient.Connected = true;
 					newClient.Accepted = false;
+					newClient.Registred = false;
 					newClient.LoginProcess = "NEW";
 					clients[_clientSocket] = newClient;
 				}
@@ -200,8 +202,9 @@ void Server::Recv()
 		ssize_t bytes_received = recv(it->first, buffer, sizeof(buffer), 0);
 		if (bytes_received <= 0)
 		{
-			if (bytes_received == 0) {
-				std::cout << "Client: " << it->first << " : Error RECV" << std::endl;
+			if (bytes_received == 0)
+			{
+				// std::cout << "Client: " << it->first << " : Error RECV" << std::endl;
 				cmds->quit(it->first, "quit .Connection lost");
 			}
 			continue;
@@ -225,7 +228,7 @@ void Server::Check()
 
 		int socket = it->first;
 		if (it->second.recvMsg[it->second.recvMsg.size() - 1] != '\n')
-			continue ;
+			continue;
 		std::string msg = it->second.recvMsg;
 		it->second.recvMsg = "";
 
@@ -236,6 +239,10 @@ void Server::Check()
 
 		if (command == "CAP" || it->second.LoginProcess == "END")
 			return cmds->cap(socket, msg);
+		if (command == "QUIT")
+			return cmds->quit(socket, msg);
+		if (it->second.Registred == false)
+			return;
 		if (command == "JOIN")
 			return cmds->join(socket, msg);
 		if (command == "PART")
@@ -254,8 +261,6 @@ void Server::Check()
 			return cmds->ping(socket);
 		if (command == "KICK")
 			return cmds->kick(socket, msg);
-		if (command == "QUIT")
-			return cmds->quit(socket, msg);
 		if (command == "TOPIC")
 			return cmds->topic(socket, msg);
 		// invite is a custom command of kvIRC and needs to be handled separatly

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <map>
 
 class Client
 {
@@ -24,4 +25,5 @@ public:
 	bool Connected;
 	std::string LoginProcess;
 	bool Accepted;
+	bool Registred;
 };
